@@ -9,8 +9,8 @@ import org.skypro.exams.model.storage.QuestionRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 @SpringBootApplication
 public class ExamsApplication {
@@ -23,8 +23,8 @@ public class ExamsApplication {
 
         try{
             //questionRepository.saveQuestions("test.txt");
-            questionRepository.loadQuestionsFromTextFile("Questions-Java-Core.txt");
-        } catch (IOException e) {
+            questionRepository.loadQuestionsFromTextFile("static/Questions-Java-Core.txt");
+        } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         }
 
