@@ -22,8 +22,10 @@ public class ExamsApplication {
         questionRepository.addQuestion(new Question("Why so serious?", "I'm so happy about it"));
 
         try{
-            //questionRepository.saveQuestions("test.txt");
-            questionRepository.loadQuestionsFromTextFile("static/Questions-Java-Core.txt");
+            //questionRepository.loadQuestionsFromTextFile("static/Questions-Java-Core.txt");
+
+            questionRepository.loadQuestionsFromJson("static/Questions-Java-Core.json");
+            questionRepository.saveQuestionsToJson("static/Questions-Java-Core.json");
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         }

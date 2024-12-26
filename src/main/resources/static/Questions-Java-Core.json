@@ -1,0 +1,118 @@
+[
+  {
+    "questionText": "Привести пример плохой реализации hashCode()",
+    "answerText": "Метод, возвращающий константу, или значения хэшкодов с неравномерным распределением, приводящим к коллизиям\n"
+  },
+  {
+    "questionText": "override vs overload",
+    "answerText": "override — возможность переопределениия поведения метода в типах-потомках\noverload — возможность переопределять метод с одним именем, но разным набором аргументов\n"
+  },
+  {
+    "questionText": "Примитивы, врапперы. Package/unpackage (boxing/unboxing)",
+    "answerText": "Типы примитивы не создаются в куче, их жизненный цикл ограничен жизненным циклом стек-фрейма\nPackage — создание типа-обертки в хипе для аналогичного типа-примитива, например при объявлении аргумента как Integer, и при передаче int в качестве аргумента. Unpackage — обратная операция\n"
+  },
+  {
+    "questionText": "Приведите пример нарушения симметрии equals",
+    "answerText": "Создать класс Point2D c полями x,y: double\nУнаследовать от него класс ColoredPoint2D c доп. полем color\na: Point2D\nb: ColoredPoint2D\na.equals(b), !b.equals(a)\n"
+  },
+  {
+    "questionText": "Какими способами можно сконструировать объект в Java?",
+    "answerText": "Через конструктор\nЧерез статический factory-method\nЧерез паттерн Builder\n"
+  },
+  {
+    "questionText": "В чем проблемы Random?",
+    "answerText": "Random возвращает псевдо-случайную числовую последовательность, основанную на линейном конгруэнтном методе и seed\u0027е, основанном на timestamp\u0027е создания j.u.Random.\nСоотвественно, зная время создания, можно предсказать такую последовательность. Такой генератор является детерминированным, и криптографически нестойким. Для исправления этого лучше использовать SecureRandom\n"
+  },
+  {
+    "questionText": "Why so serious?",
+    "answerText": "I\u0027m so happy about it"
+  },
+  {
+    "questionText": "GC и различные его виды в JVM. Какой объект считать достижимым. Как происходит сборка мусора (своими словами)",
+    "answerText": "Виды GC:\nSerial Stop the World\nParallel\nCMS (В чем недостаток по сравнению с Parallel?)\nG1 (Назвать отличие от CMS)\nShenandoah\nЕсли объект является достижимым из стека или статической области, то он не поддается сборке мусора\n"
+  },
+  {
+    "questionText": "Java 8: стримы, функциональные интерфейсы, Optional",
+    "answerText": "Stream — интерфейс, предоставляющий функциональные возможности обработки коллекций (filter, map, reduce, peek)\nОперации на стримах делятся на терминальные и нетерминальные. Нетерминальные операции модифицируют pipeline операций над коллекцией, при этом не изменяя саму коллекцию, терминальные (например, collect) — проводят действия pipeline\u0027а, возвращают результат и закрывают Stream.\nFunctionalInterface — аннотация, предоставляющая возможность использовать лямбды на месте интерфейсов (например, при передаче лямбды в качестве аргумента в метод)\nOptional — интерфейс, предохраняющий пользовательский код от nullable ссылок. Оборачивает исходный nullable объект, и предоставляет возможность понять, хранит ли non-nullable объект или нет.\n"
+  },
+  {
+    "questionText": "Регионы памяти в JVM",
+    "answerText": "Java 8: Metaspace, Old Generation, Young Generation (Eden Space/Survivor Space), Stack, Constant Pool, Code Cache, GC Area. Hard-references, weak references, soft-references, phantom-references\nHard-references — стандартные ссылки на объекты, которые становится eligible for collection после недостижимости из root set\nWeak-references — объекты могут быть удалены при наличии слабой ссылки на него в любое время\nSoft-references — объекты могут удалятся GC при недостатке памяти\nPhantom-references — объекты не доступны напрямую по ссылкам, перед удалением помещаются в очередь на удаление. Нужны для более безопасной финализации ссылок (вместо finalize)\n"
+  },
+  {
+    "questionText": "Новые возможности Java 9 — 11",
+    "answerText": "Новые методы в String\nJava 9: Модульность\nJava 9: Методы в Objects: requireNonNullElse() и requireNonNullElseGet()\nJava 9: List.of(), Set.of(), Map.of(), Map.ofEntries()\nJava 9: Optional.ifPresentOrElse(), Optional.stream()\nJava 10: var type-inference\nJava 11: Files.readString(), Files.writeString()\nJava 11: Local-Variable Syntax for Lambda Parameters — выведение типов у var-аргументов в лямбда-параметрах\nJava 11: JEP 321: HTTP Client\nМожно как бонус назвать какие-нибудь:\nJEP 328: Flight Recorder\nJEP 335: Deprecate the Nashorn JavaScript Engine\nJEP 320: Remove the Java EE and CORBA Modules\nно это совершенно необязательно, покажет лишь вашу въедливость при чтении JDK\u0027шных Release Notes :)\n"
+  },
+  {
+    "questionText": "Generics: Метод принимает ссылку на List\u003cParent\u003e. Child наследуется от Parent. Можно ли в метод передать List\u003cChild\u003e?",
+    "answerText": "В типе аргумента нужно указать List\u003c? extends Parent\u003e\n"
+  },
+  {
+    "questionText": "Bytecode: назовите какие-нибудь инструкции и опишите их",
+    "answerText": "Здесь только краткий список команд:\naload\naconst\nastore\nОписать принцип действия стековой машины как бонус. Допустим, на примере вызова метода.\n"
+  },
+  {
+    "questionText": "Сравнение по \u003d\u003d и по equals",
+    "answerText": "Сравнение по \"\u003d\u003d\" — сравнение по ссылкам\nСравнение по «equals» — если переопределен equals, то это сравнение эквивалентности объектов по их полям, если нет — по ссылкам на объекты\n"
+  },
+  {
+    "questionText": "Как идентифицируется класс в Java?",
+    "answerText": "По его FQDN и classloader\u0027у\n"
+  },
+  {
+    "questionText": "Назвать методы Object",
+    "answerText": "toString()\nequals()\nhashCode()\nwait()\nnotify()\nnotifyAll()\ngetClass()\n"
+  },
+  {
+    "questionText": "Отличия String/StringBuilder/StringBuffer",
+    "answerText": "String — иммутабельный байтовый массив\nStringBuilder — helper-класс для построения строк, не предоставляет гарантий синхронизации\nStringBuffer — то же, что и StringBuilder, с synchronized методами\n"
+  },
+  {
+    "questionText": "Generics: В чем преимущество, как работают? Что такое type-erasure? В чем отличие от шаблонов C++?",
+    "answerText": "Типы дженерики обеспечивают параметрический полиморфизм, т.е выполнение идентичного кода для различных типов. Типичный пример — коллекции, итераторы\ntype-erasure — это стирание информации о типе-параметре в runtime. Таким образом, в байт-коде мы увидим List, Set вместо List\u003cInteger\u003e, Set\u003cInteger\u003e, ну и type-cast\u0027ы при необходимости\nВ отличие от дженериков в Java, в С++ шаблоны в итоге приводят к компиляции метода или типа для каждого специфицированного типа параметра (специализация шаблона). Да простят меня здесь адепты С++.\n"
+  },
+  {
+    "questionText": "Как в Java сделать утечку памяти?",
+    "answerText": "Используя самописный класс стека, при выполнении операции pop() не присваивать предыдущей ссылке значение null.\nТакже можно неверно использовать HashMap вместо WeakHashMap для кэширования чего-нибудь большого, например картинок ваших товаров, пользователей и.т.д в. Т.к ссылки на ключи сильные (strong references), значения по этим ключам будут висеть в хипе до морковкиного заговенья следующей перезагрузки jvm процесса или удаления ключа из мапы и обнуления ссылки на него. Вообще, кэширование — тема для отдельного разговора\n"
+  },
+  {
+    "questionText": "Bytecode: invokevirtual, invokestatic, invokespecial — когда используются?",
+    "answerText": "invokevirtual — вызовы методов (в Java все методы виртуальные)\ninvokestatic — вызовы статических методов\ninvokespecial — вызовы конструкторов и приватных методов\n"
+  },
+  {
+    "questionText": "Рассказать про classloader\u0027ы и их иерархию. Из за чего, например, может возникать NoClassDefFoundError, NoSuchMethodError?",
+    "answerText": "Иерархия classloader\u0027ов\nBootstrap\nSystem\nApplication\nNoClassDefFoundError может возникнуть, если нужной библиотеки с этим классом нет в classpath\nNoSuchMethodError может возникнуть из-за несовместимости ваших библиотек, если зависимая библиотека A вызывает метод из старой версии библиотеки B, но в classpath есть более новая версия библиотеки B, c другой сигнатурой этого метода\n"
+  },
+  {
+    "questionText": "Interface vs Abstract Class",
+    "answerText": "Интерфейс есть средство наследования API, абстрактный класс — средство наследования реализации\nЧерез интерфейсы возможно осуществлять множественное наследование, абстрактный класс можно наследовать в одном экземпляре.\nВ интерфейсе нет возможности определить поля и конструкторы\n"
+  },
+  {
+    "questionText": "Свойства, которым должен удовлетворять equals",
+    "answerText": "Рефлексивность: a\u003d\u003da\nСимметричность: a\u003d\u003db, b\u003d\u003da\nТранзитивность: a\u003d\u003db, b\u003d\u003dc, a\u003d\u003dc\nКонсистентность: Множественные вызовы equals должны возвращать один и тот же результат\n"
+  },
+  {
+    "questionText": "Generics: Ковариантность/контравариантность. Спросить про принцип PECS как бонус",
+    "answerText": "Ковариантность — List\u003c? extends T\u003e, если B extends T, то и List\u003cB\u003e extends List\u003cT\u003e\nКонтраваринтность — List\u003c? super T\u003e, если B super T, то и List\u003cB\u003e super List\u003cT\u003e\nPECS — Producer-Extends-Consumer-Super, метод отдаёт ковариантный тип, принимает контравариантный (прим. автора — последнее интуитивно не очень понятно)\n"
+  },
+  {
+    "questionText": "Java 8: Что такое capturing/non-capturing lambda",
+    "answerText": "capturing lambda захватывает локальные переменные/аргументы/поля объекта из внешнего скоупа\nnon-capturing lambda — не захватывает контекст внешнего скоупа, не инстанцируется каждый раз при использовании\n"
+  },
+  {
+    "questionText": "Почему хранить пароль предпочтительнее в char[]/byte[], а не в String? (**)",
+    "answerText": "Строка в виде литерала сразу раскрывает пароль, плюс она всегда хранится в string-пуле\nbyte[]/char[] возможно сбросить после использования, и удалить все ссылки на него\n"
+  },
+  {
+    "questionText": "Why?",
+    "answerText": "Just because"
+  },
+  {
+    "questionText": "Что такое string-pool? В чем отличие cоздания строки через new от литерала? Что такое String.intern()?",
+    "answerText": "string-pool — структура в памяти, хранящая массив всех строк-литералов программы.\nString.intern(), соответственно, вернет строку из пула, при наличии таковой. Полезно при сравнениях вида:\nnew String(\"hello\").intern() \u003d\u003d new String(\"hello\").intern()\nТ.к без интернирования пришлось бы сравнивать строки через equals, что может быть медленнее при наличии длинных строк. В данном случае возвращается ссылка на один и тот же объект строки из пула, и проверка проходит с true.\n"
+  },
+  {
+    "questionText": "Как вернуть псевдо-случайную последовательность целых чисел/чисел с плавающей запятой?",
+    "answerText": "java.util.Random\n"
+  }
+]

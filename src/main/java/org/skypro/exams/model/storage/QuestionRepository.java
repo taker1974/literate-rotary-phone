@@ -5,14 +5,18 @@
 package org.skypro.exams.model.storage;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.question.Question;
-import org.skypro.exams.tools.FileTools;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -77,31 +81,51 @@ public class QuestionRepository {
     public static final String COMMENT_2 = "//";
 
     /**
+     * Очистить коллекцию вопросов.
+     */
+    public void clear() {
+        questions.clear();
+    }
+
+    /**
      * Загрузить вопросы из файла.
+     * <p>
+     * Файл должен находиться в директории статических ресурсов.<br>
+     * Файл в исходном коде должен находиться в каталоге ресурсов<br>
+     * <корень проекта>/src/main/resources/static и при сборке должен автоматически копироваться в<br>
+     * target/classes/static/
+     * </p>
      *
      * @param name имя файла в директории
      * @throws IOException        если файл не найден
      * @throws URISyntaxException если файл не найден
      */
-    public void loadQuestionsFromTextFile(@NotNull String name) throws IOException, URISyntaxException {
-        /* Файл должен находиться в директории статических ресурсов.
+    public void loadQuestionsFromTextFile(@NotNull final String name) throws IOException, URISyntaxException {
+        /*  Файл должен находиться в директории статических ресурсов.
             Структура файла:
 
                 # Комментарий 1
                 // Комментарий 2
                 Тест вопроса 1
-                Ответ 1
+                Строка 1 ответа 1
+                ...
+                Строка N ответа 1
                     <пустая строка>
                 Тест вопроса 2
-                Ответ 2
+                Строка 1 ответа 2
+                ...
                 ...
                 Тест вопроса N
-                Ответ N
+                Строка 1 ответа N
+                ...
+                Строка N ответа N
+                    <далее также возможны комментарии, пустые строки>
+                EOF
 
             Читаем файл построчно, пропуская комментарии.
             Попутно делаем обрезку строк с пробелами.
 
-            Непустую строку добавляем в StringBuilder.
+            Непустую строку добавляем в StringBuilder + перевод строки.
             Если строка пустая, то вместо неё добавляем разделитель QUESTIONS_DELIMITER
             (просто для удобства в последующем split).
 
@@ -114,13 +138,10 @@ public class QuestionRepository {
             Создаем объект Question и добавляем его в коллекцию.
          */
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        var uri = Objects.requireNonNull(classloader.getResource(name)).toURI();
+        final var uri = Objects.requireNonNull(classloader.getResource(name)).toURI();
 
-        // читаем весь файл и разбиваем его на блоки
-        // если строка начинается с # или //, то пропускаем ее
-        // если строка пустая, то заменяем её на Q:
-        var sb = new StringBuilder();
-        try (Stream<String> stream = Files.lines(Paths.get(uri))) {
+        final var sb = new StringBuilder();
+        try (final Stream<String> stream = Files.lines(Paths.get(uri))) {
             stream.filter(line -> !line.startsWith(COMMENT_1) && !line.startsWith(COMMENT_2))
                     .map(String::trim)
                     .forEach(s -> {
@@ -132,59 +153,89 @@ public class QuestionRepository {
                     });
         }
 
-        var chunks = sb.toString().split(QUESTIONS_DELIMITER);
+        final var chunks = sb.toString().split(QUESTIONS_DELIMITER);
         Stream.of(chunks).
                 forEach(chunk -> {
-                    var lines = chunk.split("\n");
+                    final var lines = chunk.split("\n");
                     if (lines.length >= 2) {
-                        String questionText = lines[0];
+                        final String questionText = lines[0];
 
-                        var innerSb = new StringBuilder();
+                        final var innerSb = new StringBuilder();
                         for (int i = 1; i < lines.length; i++) {
                             innerSb.append(lines[i]).append("\n");
                         }
-                        String answerText = innerSb.toString();
+                        final String answerText = innerSb.toString();
 
-                        var question = new Question(questionText, answerText);
+                        final var question = new Question(questionText, answerText);
                         questions.add(question);
                     }
                 });
     }
 
     /**
-     * Загрузить вопросы из файла json.
+     * Сохранить вопросы в файл json.
+     * <p>
+     * Сериализация Collection<{@link Question}> в формат json.
+     * Файл будет находиться в директории статических ресурсов.
+     * </p>
      *
-     * @param name имя файла в директории
-     * @throws FileNotFoundException если файл не найден
+     * @param name путь к файлу
+     * @throws IOException        если файл не может быть создан
+     * @throws URISyntaxException если невозможно создать URI
      */
-    public void loadQuestionsFromJson(@NotNull String name) throws FileNotFoundException {
-        var path = FileTools.getClassDirectory(this.getClass());
-        var file = new File(path, name);
-        if (!file.exists()) {
-            throw new FileNotFoundException("Файл " + file.getName() + " не найден");
-        }
+    public void saveQuestionsToJson(@NotNull final String name) throws IOException, URISyntaxException {
+        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+        final var resourceUri = Objects.requireNonNull(classloader.getResource("")).toURI();
 
-        // TODO: загрузить вопросы из файла json
+        final var path = Paths.get(resourceUri).resolve(name);
+        final var file = new File(path.toString());
+
+        // https://stackoverflow.com/questions/4105795/pretty-print-json-in-java
+
+        final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        final String uglyJsonString = gson.toJson(questions);
+        final JsonElement jsonElement = JsonParser.parseString(uglyJsonString);
+        String prettyJsonString = gson.toJson(jsonElement);
+
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(prettyJsonString);
+        }
     }
 
     /**
-     * Сохранить вопросы в файл json.
+     * Загрузить вопросы из файла json.
+     * <p>
+     * Структура json в данном случае - это сериализация Collection<{@link Question}>.<br>
+     * Файл должен находиться в директории статических ресурсов.
+     * </p>
      *
-     * @param name путь к файлу
+     * @param name имя файла в директории
+     * @throws FileNotFoundException    если файл не найден
+     * @throws URISyntaxException       если невозможно создать URI
+     * @throws NullPointerException     если коллекция прочитана из файла с ошибками
+     * @throws IllegalArgumentException если прочитанная из файла коллекция не может быть добавлена в хранилище
      */
-    public void saveQuestionsToJson(@NotNull final String name) throws IOException {
-        // формируем путь к файлу
-        final var path = FileTools.getClassDirectory(this.getClass());
-        final var file = new File(path, name);
+    public void loadQuestionsFromJson(@NotNull String name) throws FileNotFoundException, URISyntaxException {
+        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+        final var uri = Objects.requireNonNull(classloader.getResource(name)).toURI();
+
+        final String path = uri.getPath();
+        final var file = new File(path);
+
+        // https://java2blog.com/gson-fromjson/
+        // https://www.baeldung.com/gson-deserialization-guide
 
         final var gson = new Gson();
-        final String json = gson.toJson(questions);
+        Collection<Question> collection = gson.fromJson(new FileReader(file),
+                new TypeToken<Collection<Question>>() {
+                }.getType());
 
-        try (FileWriter writer = new FileWriter(file)) {
-            writer.write(json);
-        } catch (IOException e) {
-            throw new IOException(e);
+        if (collection == null) {
+            throw new NullPointerException("Ошибка загрузки коллекции вопросов из файла json " + name + ": коллекция " +
+                    "не может быть null");
         }
+
+        questions.addAll(collection);
     }
 
     /**
