@@ -13,16 +13,24 @@ package org.skypro.exams.tools;
 public final class StringTools {
 
     /**
+     * Конструктор.
+     */
+    private StringTools() {
+    }
+
+    /**
      * Проверка строки на соответствие требованиям.
      *
-     * @param text текст
+     * @param text      текст
      * @param minLength минимальная длина
      * @param maxLength максимальная длина
      * @return true, если строка соответствует требованиям
      */
-    public static boolean isGoodString(String text, int minLength, int maxLength){
-        return text != null &&
-                text.length() >= minLength &&
-                text.length() <= maxLength;
+    public static boolean isBadString(String text, int minLength, int maxLength) {
+        if (text == null) {
+            return true;
+        }
+        return text.length() < minLength ||
+                text.length() > maxLength;
     }
 }

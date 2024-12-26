@@ -54,13 +54,13 @@ public final class Question {
      * @param answerText   текст ответа
      */
     public Question(@NotNull String questionText, @NotNull String answerText) {
-        if (!StringTools.isGoodString(questionText, MIN_QUESTION_LENGTH, MAX_QUESTION_LENGTH)) {
+        if (StringTools.isBadString(questionText, MIN_QUESTION_LENGTH, MAX_QUESTION_LENGTH)) {
             throw new BadQuestionException(
                     String.format("Вопрос не должен быть null и его длина должна быть от %d до %d символов",
                             MIN_QUESTION_LENGTH, MAX_QUESTION_LENGTH));
         }
 
-        if (!StringTools.isGoodString(answerText, MIN_ANSWER_LENGTH, MAX_ANSWER_LENGTH)) {
+        if (StringTools.isBadString(answerText, MIN_ANSWER_LENGTH, MAX_ANSWER_LENGTH)) {
             throw new BadQuestionException(
                     String.format("Ответ не должен быть null и его длина должна быть от %d до %d символов",
                             MIN_ANSWER_LENGTH, MAX_ANSWER_LENGTH));

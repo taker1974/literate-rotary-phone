@@ -38,7 +38,7 @@ public final class FileTools {
             throw new IllegalArgumentException("Не удалось получить путь к файлу " + className);
         }
 
-        final var file = new File(url.getFile());
+        final File file = new File(url.getFile());
         return file.getParent();
     }
 }

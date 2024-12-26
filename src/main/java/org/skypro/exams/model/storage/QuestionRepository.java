@@ -9,7 +9,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
-import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.question.Question;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +18,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,12 +30,11 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
- * Хранилище объектов типа {@link org.skypro.exams.model.question.Question}.
+ * Хранилище объектов типа {@link Question}.
  *
  * @author Константин Терских, kostus.online.1974@yandex.ru, 2024
  * @version 1.1
  */
-@Log4j2
 public class QuestionRepository {
 
     // Вопросы брал откуда-то оттуда:
@@ -100,7 +100,7 @@ public class QuestionRepository {
      * @throws IOException        если файл не найден
      * @throws URISyntaxException если файл не найден
      */
-    public void loadQuestionsFromTextFile(@NotNull final String name) throws IOException, URISyntaxException {
+    public void loadQuestionsFromTextFile(final String name) throws IOException, URISyntaxException {
         /*  Файл должен находиться в директории статических ресурсов.
             Структура файла:
 
@@ -138,7 +138,7 @@ public class QuestionRepository {
             Создаем объект Question и добавляем его в коллекцию.
          */
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        final var uri = Objects.requireNonNull(classloader.getResource(name)).toURI();
+        final URI uri = Objects.requireNonNull(classloader.getResource(name)).toURI();
 
         final var sb = new StringBuilder();
         try (final Stream<String> stream = Files.lines(Paths.get(uri))) {
@@ -153,20 +153,20 @@ public class QuestionRepository {
                     });
         }
 
-        final var chunks = sb.toString().split(QUESTIONS_DELIMITER);
+        final String[] chunks = sb.toString().split(QUESTIONS_DELIMITER);
         Stream.of(chunks).
                 forEach(chunk -> {
-                    final var lines = chunk.split("\n");
+                    final String[] lines = chunk.split("\n");
                     if (lines.length >= 2) {
                         final String questionText = lines[0];
 
-                        final var innerSb = new StringBuilder();
+                        final StringBuilder innerSb = new StringBuilder();
                         for (int i = 1; i < lines.length; i++) {
                             innerSb.append(lines[i]).append("\n");
                         }
                         final String answerText = innerSb.toString();
 
-                        final var question = new Question(questionText, answerText);
+                        final Question question = new Question(questionText, answerText);
                         questions.add(question);
                     }
                 });
@@ -183,12 +183,12 @@ public class QuestionRepository {
      * @throws IOException        если файл не может быть создан
      * @throws URISyntaxException если невозможно создать URI
      */
-    public void saveQuestionsToJson(@NotNull final String name) throws IOException, URISyntaxException {
+    public void saveQuestionsToJson(final String name) throws IOException, URISyntaxException {
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        final var resourceUri = Objects.requireNonNull(classloader.getResource("")).toURI();
+        final URI resourceUri = Objects.requireNonNull(classloader.getResource("")).toURI();
 
-        final var path = Paths.get(resourceUri).resolve(name);
-        final var file = new File(path.toString());
+        final Path path = Paths.get(resourceUri).resolve(name);
+        final File file = new File(path.toString());
 
         // https://stackoverflow.com/questions/4105795/pretty-print-json-in-java
 
@@ -215,17 +215,17 @@ public class QuestionRepository {
      * @throws NullPointerException     если коллекция прочитана из файла с ошибками
      * @throws IllegalArgumentException если прочитанная из файла коллекция не может быть добавлена в хранилище
      */
-    public void loadQuestionsFromJson(@NotNull String name) throws FileNotFoundException, URISyntaxException {
+    public void loadQuestionsFromJson(String name) throws FileNotFoundException, URISyntaxException {
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        final var uri = Objects.requireNonNull(classloader.getResource(name)).toURI();
+        final URI uri = Objects.requireNonNull(classloader.getResource(name)).toURI();
 
         final String path = uri.getPath();
-        final var file = new File(path);
+        final File file = new File(path);
 
         // https://java2blog.com/gson-fromjson/
         // https://www.baeldung.com/gson-deserialization-guide
 
-        final var gson = new Gson();
+        final Gson gson = new Gson();
         Collection<Question> collection = gson.fromJson(new FileReader(file),
                 new TypeToken<Collection<Question>>() {
                 }.getType());
@@ -243,7 +243,7 @@ public class QuestionRepository {
      *
      * @param question вопрос
      */
-    public void addQuestion(@NotNull Question question) {
+    public void addQuestion(Question question) {
         questions.add(question);
     }
 
@@ -252,7 +252,7 @@ public class QuestionRepository {
      *
      * @param question вопрос
      */
-    public Question removeQuestion(@NotNull Question question) {
+    public Question removeQuestion(Question question) {
         questions.remove(question);
         return question;
     }
