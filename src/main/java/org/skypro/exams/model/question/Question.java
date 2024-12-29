@@ -80,13 +80,13 @@ public final class Question {
         if (o == null) {
             return false;
         }
-        if (this == o){
+        if (this == o) {
             return true;
         }
         if (!(o instanceof Question that)) {
             return false;
         }
-        return Objects.equals(questionText ,that.questionText) &&
+        return Objects.equals(questionText, that.questionText) &&
                 Objects.equals(answerText, that.answerText);
     }
 
