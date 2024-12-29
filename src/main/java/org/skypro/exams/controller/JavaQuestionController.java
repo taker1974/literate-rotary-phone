@@ -4,7 +4,6 @@
 
 package org.skypro.exams.controller;
 
-import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.question.Question;
 import org.skypro.exams.service.java.JavaQuestionService;
@@ -22,7 +21,6 @@ import java.util.Collection;
  * @author Константин Терских, kostus.online.1974@yandex.ru, 2024
  * @version 1.1
  */
-@Log4j2
 @RestController
 public class JavaQuestionController {
 
@@ -46,8 +44,7 @@ public class JavaQuestionController {
      */
     @PutMapping("/exam/java/add")
     public void addQuestion(final String questionText, final String answerText) {
-        var question = questionService.addQuestion(questionText, answerText);
-        log.info("Добавлен вопрос: {}", question);
+        questionService.addQuestion(questionText, answerText);
     }
 
     /**
@@ -72,9 +69,6 @@ public class JavaQuestionController {
         questionService.getQuestionsAll().stream()
                 .filter(question -> question.equals(questionToRemove))
                 .findFirst()
-                .ifPresent(o -> {
-                    questionService.removeQuestion(o);
-                    log.info("Удален вопрос: {}", o);
-                });
+                .ifPresent(questionService::removeQuestion);
     }
 }

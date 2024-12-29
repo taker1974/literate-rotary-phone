@@ -10,8 +10,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.TestOnly;
 import org.skypro.exams.model.question.Question;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,7 +27,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -255,9 +252,8 @@ public class QuestionRepository {
      *
      * @param question вопрос
      */
-    public Question removeQuestion(Question question) {
+    public void removeQuestion(Question question) {
         questions.remove(question);
-        return question;
     }
 
     /**

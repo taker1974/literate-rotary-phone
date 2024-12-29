@@ -25,11 +25,10 @@ public interface QuestionService {
      * Добавляет вопрос в хранилище.
      *
      * @param question экземпляр класса {@link Question}
-     * @return возвращает добавленный вопрос
      * @throws org.skypro.exams.model.question.BadQuestionException в случае некорректного вопроса или если
      *                                                              корректный вопрос не может быть добавлен
      */
-    Question addQuestion(Question question);
+    void addQuestion(Question question);
 
     /**
      * Добавляет вопрос в хранилище.
@@ -46,15 +45,19 @@ public interface QuestionService {
      * Удаляет вопрос из хранилища.
      *
      * @param question экземпляр класса {@link Question}
-     * @return возвращает удалённый вопрос
      * @throws org.skypro.exams.model.question.BadQuestionException в случае некорректного вопроса или если
      *                                                              корректный вопрос не может быть удалён
      */
-    Question removeQuestion(Question question);
+    void removeQuestion(Question question);
 
     /**
      * @return случайный вопрос {@link Question}
      * @throws org.skypro.exams.model.question.BadQuestionException в случае, если вопросы недоступны
      */
     Question getRandomQuestion();
+
+    /**
+     * @return количество вопросов
+     */
+    int getAmountOfQuestions();
 }

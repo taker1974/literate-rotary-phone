@@ -38,28 +38,34 @@ public final class JavaQuestionService implements QuestionService {
         random = new Random();
     }
 
+    /**
+     * @return количество вопросов в хранилище
+     */
+    @Override
+    public int getAmountOfQuestions() {
+        return questionRepository.getQuestionsAll().size();
+    }
+
     @Override
     public Collection<Question> getQuestionsAll() {
         return questionRepository.getQuestionsAll();
     }
 
     @Override
-    public Question addQuestion(Question question) {
+    public void addQuestion(Question question) {
         questionRepository.addQuestion(question);
-        return question;
     }
 
     @Override
     public Question addQuestion(String questionText, String answerText) {
         Question question = new Question(questionText, answerText);
-        questionRepository.addQuestion(question);
+        addQuestion(question);
         return question;
     }
 
     @Override
-    public Question removeQuestion(Question question) {
+    public void removeQuestion(Question question) {
         questionRepository.removeQuestion(question);
-        return question;
     }
 
     @Override
