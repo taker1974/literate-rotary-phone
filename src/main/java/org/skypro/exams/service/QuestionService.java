@@ -17,6 +17,11 @@ import java.util.Collection;
 public interface QuestionService {
 
     /**
+     * @return коллекция вопросов {@link Question}
+     */
+    Collection<Question> getQuestionsAll();
+
+    /**
      * Добавляет вопрос в хранилище.
      *
      * @param question экземпляр класса {@link Question}
@@ -38,17 +43,6 @@ public interface QuestionService {
     Question addQuestion(String questionText, String answerText);
 
     /**
-     * @return коллекция вопросов
-     */
-    Collection<Question> getAllQuestions();
-
-    /**
-     * @return случайный вопрос
-     * @throws org.skypro.exams.model.question.BadQuestionException в случае, если вопросы недоступны
-     */
-    Question getRandomQuestion();
-
-    /**
      * Удаляет вопрос из хранилища.
      *
      * @param question экземпляр класса {@link Question}
@@ -57,4 +51,10 @@ public interface QuestionService {
      *                                                              корректный вопрос не может быть удалён
      */
     Question removeQuestion(Question question);
+
+    /**
+     * @return случайный вопрос {@link Question}
+     * @throws org.skypro.exams.model.question.BadQuestionException в случае, если вопросы недоступны
+     */
+    Question getRandomQuestion();
 }
