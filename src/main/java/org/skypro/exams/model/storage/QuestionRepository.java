@@ -12,6 +12,7 @@ import com.google.gson.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.question.Question;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,7 +36,8 @@ import java.util.stream.Stream;
  * @author Константин Терских, kostus.online.1974@yandex.ru, 2024
  * @version 1.1
  */
-public class QuestionRepository {
+@Component
+public final class QuestionRepository {
 
     // Вопросы брал откуда-то оттуда:
     //  https://habr.com/ru/articles/485678/
@@ -100,7 +102,9 @@ public class QuestionRepository {
      * @throws IOException        если файл не найден
      * @throws URISyntaxException если файл не найден
      */
-    public void loadQuestionsFromTextFile(final String name) throws IOException, URISyntaxException {
+    public void loadQuestionsFromTextFile(final String name)
+            throws IOException, URISyntaxException {
+
         /*  Файл должен находиться в директории статических ресурсов.
             Структура файла:
 
@@ -183,7 +187,9 @@ public class QuestionRepository {
      * @throws IOException        если файл не может быть создан
      * @throws URISyntaxException если невозможно создать URI
      */
-    public void saveQuestionsToJson(final String name) throws IOException, URISyntaxException {
+    public void saveQuestionsToJson(final String name)
+            throws IOException, URISyntaxException {
+
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
         final URI resourceUri = Objects.requireNonNull(classloader.getResource("")).toURI();
 
@@ -215,7 +221,9 @@ public class QuestionRepository {
      * @throws NullPointerException     если коллекция прочитана из файла с ошибками
      * @throws IllegalArgumentException если прочитанная из файла коллекция не может быть добавлена в хранилище
      */
-    public void loadQuestionsFromJson(String name) throws FileNotFoundException, URISyntaxException {
+    public void loadQuestionsFromJsonFile(String name)
+            throws FileNotFoundException, URISyntaxException {
+
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
         final URI uri = Objects.requireNonNull(classloader.getResource(name)).toURI();
 

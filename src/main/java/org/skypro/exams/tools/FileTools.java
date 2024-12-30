@@ -7,7 +7,10 @@ package org.skypro.exams.tools;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Objects;
 
 /**
  * Инструменты работы с файлами.
@@ -40,5 +43,22 @@ public final class FileTools {
 
         final File file = new File(url.getFile());
         return file.getParent();
+    }
+
+    /**
+     * Проверить, существует ли ресурсный файл.
+     *
+     * @param filename имя файла
+     * @return true, если файл существует
+     * @throws URISyntaxException если не удалось получить путь к файлу
+     */
+    public static boolean isResourceFileExists(final String filename) throws URISyntaxException {
+        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+        final URI uri = Objects.requireNonNull(classloader.getResource(filename)).toURI();
+
+        final String path = uri.getPath();
+        final File file = new File(path);
+
+        return file.exists();
     }
 }

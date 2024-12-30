@@ -2,40 +2,51 @@
 // Терских Константин, kostus.online.1974@yandex.ru, 2024
 // Курсовая работа. Java Core.
 
-package org.skypro.exams.service.java;
+package org.skypro.exams.service.subjects;
 
 import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.question.Question;
 import org.skypro.exams.model.storage.QuestionRepository;
-import org.skypro.exams.service.QuestionService;
-import org.springframework.stereotype.Service;
+import org.skypro.exams.tools.FileTools;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Random;
 
 /**
- * Сервис для работы с вопросами по Java.
+ * Базовый класс для сервисов работы с вопросами.
  *
  * @author Константин Терских, kostus.online.1974@yandex.ru, 2024
  * @version 1.1
  */
-@Service
-public final class JavaQuestionService implements QuestionService {
+public abstract class BaseQuestionService implements QuestionService {
 
     @NotNull
-    private final QuestionRepository questionRepository;
+    protected final QuestionRepository questionRepository;
 
     @NotNull
-    private final Random random;
+    protected final Random random;
 
     /**
      * Конструктор.
      *
      * @param questionRepository репозиторий вопросов
      */
-    public JavaQuestionService(@NotNull QuestionRepository questionRepository) {
-        this.questionRepository = questionRepository;
+    protected BaseQuestionService(@NotNull QuestionRepository questionRepository,
+                                  final String jsonFilename, final String textFilename)
+            throws URISyntaxException, IOException {
+
         random = new Random();
+
+        this.questionRepository = questionRepository;
+        if (FileTools.isResourceFileExists(jsonFilename)) {
+            this.questionRepository.loadQuestionsFromJsonFile(jsonFilename);
+        } else if (FileTools.isResourceFileExists(textFilename)) {
+            this.questionRepository.loadQuestionsFromTextFile(textFilename);
+        } else {
+            throw new IllegalStateException("Не удалось найти файл с вопросами");
+        }
     }
 
     /**
@@ -57,10 +68,9 @@ public final class JavaQuestionService implements QuestionService {
     }
 
     @Override
-    public Question addQuestion(String questionText, String answerText) {
+    public void addQuestion(String questionText, String answerText) {
         Question question = new Question(questionText, answerText);
         addQuestion(question);
-        return question;
     }
 
     @Override

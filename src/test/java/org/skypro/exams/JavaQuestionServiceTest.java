@@ -13,8 +13,10 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.skypro.exams.model.question.Question;
 import org.skypro.exams.model.storage.QuestionRepository;
-import org.skypro.exams.service.java.JavaQuestionService;
+import org.skypro.exams.service.subjects.JavaQuestionService;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Random;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,21 +26,24 @@ class JavaQuestionServiceTest {
     private final Random random;
 
     @Mock
-    private final JavaQuestionService service;
+    private final JavaQuestionService questionService;
 
     @Spy
     private final QuestionRepository questionRepository;
 
-    public JavaQuestionServiceTest() {
+    public JavaQuestionServiceTest()
+            throws URISyntaxException, IOException {
+
         this.random = new Random();
+
         this.questionRepository = new QuestionRepository();
-        this.service = new JavaQuestionService(questionRepository);
+        this.questionService = new JavaQuestionService(questionRepository);
     }
 
     @Test
     void whenGetAmountOfQuestions_thenReturnAmountOfQuestions() {
         questionRepository.clear();
-        Assertions.assertEquals(0, service.getAmountOfQuestions());
+        Assertions.assertEquals(0, questionService.getAmountOfQuestions());
 
         // добавляем пару вопросов вручную
         var newQuestions = new Question[]{
@@ -49,7 +54,7 @@ class JavaQuestionServiceTest {
         questionRepository.addQuestion(newQuestions[0]);
         questionRepository.addQuestion(newQuestions[1]);
 
-        Assertions.assertEquals(questionRepository.getQuestionsAll().size(), service.getAmountOfQuestions());
+        Assertions.assertEquals(questionRepository.getQuestionsAll().size(), questionService.getAmountOfQuestions());
     }
 
     @Test
@@ -73,12 +78,12 @@ class JavaQuestionServiceTest {
         int max = questionRepository.getQuestionsAll().size();
 
         Mockito.when(random.nextInt(min, max)).thenReturn(min);
-        Assertions.assertEquals(service.getRandomQuestion(), newQuestions[min - 1]);
+        Assertions.assertEquals(questionService.getRandomQuestion(), newQuestions[min - 1]);
 
         Mockito.when(random.nextInt(min, max)).thenReturn(max);
-        Assertions.assertEquals(service.getRandomQuestion(), newQuestions[max - 1]);
+        Assertions.assertEquals(questionService.getRandomQuestion(), newQuestions[max - 1]);
 
         Mockito.when(random.nextInt(min, max)).thenReturn(max / 2);
-        Assertions.assertEquals(service.getRandomQuestion(), newQuestions[max / 2 - 1]);
+        Assertions.assertEquals(questionService.getRandomQuestion(), newQuestions[max / 2 - 1]);
     }
 }

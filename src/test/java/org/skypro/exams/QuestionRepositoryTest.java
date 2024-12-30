@@ -65,15 +65,15 @@ class QuestionRepositoryTest {
 
         // проверяем работу с "кривыми" именами файлов при загрузке из файла
         Assertions.assertThrows(RuntimeException.class, () ->
-                questionRepository.loadQuestionsFromJson(null));
+                questionRepository.loadQuestionsFromJsonFile(null));
         Assertions.assertThrows(RuntimeException.class, () ->
-                questionRepository.loadQuestionsFromJson(""));
+                questionRepository.loadQuestionsFromJsonFile(""));
         Assertions.assertThrows(RuntimeException.class, () ->
-                questionRepository.loadQuestionsFromJson("bad.file.name"));
+                questionRepository.loadQuestionsFromJsonFile("bad.file.name"));
 
         final String goodFileName = "static/Questions-Java-Core.json";
         try {
-            questionRepository.loadQuestionsFromJson(goodFileName);
+            questionRepository.loadQuestionsFromJsonFile(goodFileName);
         } catch (URISyntaxException | IOException | RuntimeException e) {
             Assertions.fail(e.getClass().getName() + ", но здесь не должно быть ошибок");
         }
@@ -92,7 +92,7 @@ class QuestionRepositoryTest {
         // сначала наполняем репозиторий
         final String goodSourceFileName = "static/Questions-Java-Core.json";
         try {
-            questionRepository.loadQuestionsFromJson(goodSourceFileName);
+            questionRepository.loadQuestionsFromJsonFile(goodSourceFileName);
         } catch (URISyntaxException | IOException | RuntimeException e) {
             Assertions.fail(e.getClass().getName() + ", но здесь не должно быть ошибок");
         }
@@ -137,7 +137,7 @@ class QuestionRepositoryTest {
 
         final String goodSourceFileName = "static/Questions-Java-Core.json";
         try {
-            questionRepository.loadQuestionsFromJson(goodSourceFileName);
+            questionRepository.loadQuestionsFromJsonFile(goodSourceFileName);
         } catch (URISyntaxException | IOException | RuntimeException e) {
             Assertions.fail(e.getClass().getName() + ", но здесь не должно быть ошибок");
         }
@@ -152,7 +152,7 @@ class QuestionRepositoryTest {
         // загружаем вопросы из файла
         final String goodSourceFileName = "static/Questions-Java-Core.json";
         try {
-            questionRepository.loadQuestionsFromJson(goodSourceFileName);
+            questionRepository.loadQuestionsFromJsonFile(goodSourceFileName);
         } catch (URISyntaxException | IOException | RuntimeException e) {
             Assertions.fail(e.getClass().getName() + ", но здесь не должно быть ошибок");
         }
@@ -184,7 +184,7 @@ class QuestionRepositoryTest {
         // загружаем вопросы из файла
         final String goodSourceFileName = "static/Questions-Java-Core.json";
         try {
-            questionRepository.loadQuestionsFromJson(goodSourceFileName);
+            questionRepository.loadQuestionsFromJsonFile(goodSourceFileName);
         } catch (URISyntaxException | IOException | RuntimeException e) {
             Assertions.fail(e.getClass().getName() + ", но здесь не должно быть ошибок");
         }

@@ -2,7 +2,7 @@
 // Терских Константин, kostus.online.1974@yandex.ru, 2024
 // Курсовая работа. Java Core.
 
-package org.skypro.exams.service;
+package org.skypro.exams.service.examiner;
 
 import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.question.Question;

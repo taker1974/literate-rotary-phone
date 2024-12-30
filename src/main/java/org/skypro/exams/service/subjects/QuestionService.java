@@ -2,7 +2,7 @@
 // Терских Константин, kostus.online.1974@yandex.ru, 2024
 // Курсовая работа. Java Core.
 
-package org.skypro.exams.service;
+package org.skypro.exams.service.subjects;
 
 import org.skypro.exams.model.question.Question;
 
@@ -35,11 +35,10 @@ public interface QuestionService {
      *
      * @param questionText текст вопроса
      * @param answerText   текст ответа
-     * @return возвращает добавленный вопрос {@link Question}
      * @throws org.skypro.exams.model.question.BadQuestionException в случае некорректного вопроса или если
      *                                                              корректный вопрос не может быть добавлен
      */
-    Question addQuestion(String questionText, String answerText);
+    void addQuestion(String questionText, String answerText);
 
     /**
      * Удаляет вопрос из хранилища.

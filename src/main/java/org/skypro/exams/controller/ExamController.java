@@ -6,7 +6,7 @@ package org.skypro.exams.controller;
 
 import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.question.Question;
-import org.skypro.exams.service.ExaminerService;
+import org.skypro.exams.service.examiner.ExaminerService;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.Collection;

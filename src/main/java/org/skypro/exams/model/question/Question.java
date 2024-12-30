@@ -17,6 +17,7 @@ import java.util.Objects;
  * @author Константин Терских, kostus.online.1974@yandex.ru, 2024
  * @version 1.1
  */
+@Getter
 public final class Question {
     /**
      * Минимальная длина текста вопроса.
@@ -39,11 +40,9 @@ public final class Question {
     public static final int MAX_ANSWER_LENGTH = 10_000;
 
     @NotNull
-    @Getter
     private final String questionText;
 
     @NotNull
-    @Getter
     private final String answerText;
 
     /**

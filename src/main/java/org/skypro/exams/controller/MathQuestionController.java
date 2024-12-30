@@ -6,7 +6,7 @@ package org.skypro.exams.controller;
 
 import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.question.Question;
-import org.skypro.exams.service.subjects.JavaQuestionService;
+import org.skypro.exams.service.subjects.MathQuestionService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,21 +15,21 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collection;
 
 /**
- * Контроллер для работы с вопросами по Java.<br>
+ * Контроллер для работы с вопросами по математике.<br>
  * Позволяет пользователю добавлять, просматривать и удалять вопросы.
  *
  * @author Константин Терских, kostus.online.1974@yandex.ru, 2024
  * @version 1.1
  */
 @RestController
-public class JavaQuestionController extends BaseQuestionController {
+public class MathQuestionController extends BaseQuestionController {
 
     /**
      * Конструктор.
      *
      * @param questionService сервис для работы с вопросами
      */
-    public JavaQuestionController(@NotNull final JavaQuestionService questionService) {
+    public MathQuestionController(@NotNull final MathQuestionService questionService) {
 
         super(questionService);
     }
@@ -40,7 +40,7 @@ public class JavaQuestionController extends BaseQuestionController {
      * @param questionText текст вопроса
      * @param answerText   текст ответа
      */
-    @PutMapping("/exam/java/add")
+    @PutMapping("/exam/math/add")
     public void addQuestion(final String questionText, final String answerText) {
         questionService.addQuestion(questionText, answerText);
     }
@@ -50,7 +50,7 @@ public class JavaQuestionController extends BaseQuestionController {
      *
      * @return все вопросы
      */
-    @RequestMapping("/exam/java")
+    @RequestMapping("/exam/math")
     public Collection<Question> getQuestionsAll() {
         return questionService.getQuestionsAll();
     }
@@ -61,7 +61,7 @@ public class JavaQuestionController extends BaseQuestionController {
      * @param questionText текст вопроса
      * @param answerText   текст ответа
      */
-    @DeleteMapping("/exam/java/remove")
+    @DeleteMapping("/exam/math/remove")
     public void removeQuestion(final String questionText, final String answerText) {
         var questionToRemove = new Question(questionText, answerText);
         questionService.getQuestionsAll().stream()
