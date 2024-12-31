@@ -4,7 +4,6 @@
 
 package org.skypro.exams.model.question;
 
-import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.tools.StringTools;
 
@@ -17,7 +16,6 @@ import java.util.Objects;
  * @author Константин Терских, kostus.online.1974@yandex.ru, 2024
  * @version 1.1
  */
-@Getter
 public final class Question {
     /**
      * Минимальная длина текста вопроса.
@@ -43,7 +41,17 @@ public final class Question {
     private final String questionText;
 
     @NotNull
+    public String getQuestionText() {
+        return questionText;
+    }
+
+    @NotNull
     private final String answerText;
+
+    @NotNull
+    public String getAnswerText() {
+        return answerText;
+    }
 
     /**
      * Конструктор.<br>

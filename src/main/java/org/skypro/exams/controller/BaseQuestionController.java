@@ -22,7 +22,6 @@ import java.util.Collection;
  * @author Константин Терских, kostus.online.1974@yandex.ru, 2024
  * @version 1.1
  */
-@RestController
 public abstract class BaseQuestionController {
 
     @NotNull

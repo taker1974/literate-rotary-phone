@@ -34,6 +34,11 @@ public class MathQuestionController extends BaseQuestionController {
         super(questionService);
     }
 
+    @RequestMapping("/exam/test")
+    public String getTest() {
+        return "Wish you're here...";
+    }
+
     /**
      * Добавление вопроса.
      *

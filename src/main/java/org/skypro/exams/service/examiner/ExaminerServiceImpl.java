@@ -6,16 +6,14 @@ package org.skypro.exams.service.examiner;
 
 import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.question.Question;
-import org.skypro.exams.service.subjects.JavaQuestionService;
-import org.skypro.exams.service.subjects.MathQuestionService;
 import org.skypro.exams.service.subjects.QuestionService;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Stream;
 
 /**
  * Реализация интерфейса экзаменатора {@link ExaminerService}.<br>
@@ -24,38 +22,32 @@ import java.util.stream.Stream;
  * @author Константин Терских, kostus.online.1974@yandex.ru, 2024
  * @version 1.1
  */
+@Service
 public class ExaminerServiceImpl implements ExaminerService {
-
-    @NotNull
-    private final QuestionService javaQuestionService;
-
-    @NotNull
-    private final QuestionService mathQuestionService;
 
     @NotNull
     private final Random random;
 
+    @NotNull
+    private final List<QuestionService> questionServices;
+
     /**
      * Конструктор.
      *
-     * @param javaQuestionService сервис вопросов по Java
-     * @param mathQuestionService сервис вопросов по математике
+     * @param services сервисы вопросов
      */
-    public ExaminerServiceImpl(@NotNull final JavaQuestionService javaQuestionService,
-                               @NotNull final MathQuestionService mathQuestionService) {
-        this.javaQuestionService = javaQuestionService;
-        this.mathQuestionService = mathQuestionService;
+    public ExaminerServiceImpl(@NotNull final QuestionService... services) {
         random = new Random();
+        questionServices = List.of(services);
     }
 
     private int getQuestionsCount() {
-        return javaQuestionService.getAmountOfQuestions() +
-                mathQuestionService.getAmountOfQuestions();
-
+        return questionServices.stream().mapToInt(QuestionService::getAmountOfQuestions).sum();
     }
 
     /**
-     * Возвращает заданное количество вопросов, набирая вопросы из разных предметов.
+     * Возвращает заданное количество вопросов, набирая вопросы из разных предметов
+     * поровну по возможности.
      *
      * @param amount количество вопросов
      * @return список вопросов
@@ -64,25 +56,37 @@ public class ExaminerServiceImpl implements ExaminerService {
     @NotNull
     public final Collection<Question> getQuestions(final int amount) {
         if (amount < 1) {
-            throw new IllegalArgumentException("Количество вопросов должно быть больше или равно 1");
+            return Collections.emptyList();
         }
 
-        // Если вопрос только один,
-        // то выбираем его из случайного предметного сервиса
+        // Если вопрос только один, то
+        // выбираем его из случайного предметного сервиса
         if (amount == 1) {
-            QuestionService service = random.nextBoolean() ? javaQuestionService : mathQuestionService;
+            QuestionService service = questionServices.get(random.nextInt(questionServices.size() - 1));
             return getQuestionsOf(service, amount);
         }
 
-        // Если вопросов больше одного,
-        // то выбираем половину из одного сервиса,
-        // а вторую половину из другого
-        int amountJava = amount / 2;
-        int amountMath = amount - amountJava;
+        // Если вопросов больше одного, то
+        // набираем вопросы поровну из каждого сервиса.
+        // Если amount меньше количества сервисов: например, amount == 3, а сервисов 5,
+        // то из каждого сервиса выбираем по одному вопросу, пока не наберём 3 вопроса.
 
-        return Stream.concat(
-                getQuestionsOf(javaQuestionService, amountJava).stream(),
-                getQuestionsOf(mathQuestionService, amountMath).stream()).toList();
+        int questionsPerService = Math.max(1, amount / questionServices.size());
+        List<Question> yieldQuestions = new ArrayList<>(getQuestionsCount());
+
+        int addition = amount % 2;
+        if (addition > 0) {
+            yieldQuestions.addAll(getQuestionsOf(questionServices.getFirst(), addition));
+        }
+
+        for (QuestionService service : questionServices) {
+            yieldQuestions.addAll(getQuestionsOf(service, questionsPerService));
+            if (yieldQuestions.size() >= amount) {
+                break;
+            }
+        }
+
+        return Collections.unmodifiableCollection(yieldQuestions);
     }
 
     private Collection<Question> getQuestionsOf(@NotNull final QuestionService questionService,

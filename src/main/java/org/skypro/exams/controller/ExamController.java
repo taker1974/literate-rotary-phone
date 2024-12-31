@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.question.Question;
 import org.skypro.exams.service.examiner.ExaminerService;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 
@@ -17,6 +18,7 @@ import java.util.Collection;
  * @author Константин Терских, kostus.online.1974@yandex.ru, 2024
  * @version 1.1
  */
+@RestController
 public class ExamController {
 
     @NotNull
@@ -26,7 +28,7 @@ public class ExamController {
         this.examinerService = examinerService;
     }
 
-    @RequestMapping("/exam/get?amount")
+    @RequestMapping("/exam/get")
     public Collection<Question> getQuestions(int amount) {
         return examinerService.getQuestions(amount);
     }
