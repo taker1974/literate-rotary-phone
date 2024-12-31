@@ -95,7 +95,7 @@ public class ExaminerServiceImpl implements ExaminerService {
 
         int realAmount = questionService.getAmountOfQuestions();
         if (amount > realAmount) {
-            throw new IllegalArgumentException("Количество вопросов не должно быть больше " + realAmount);
+            throw new TooManyQuestionsException(questionService, amount, realAmount);
         }
 
         // Очень редкий случай, но не стоит по этой причине

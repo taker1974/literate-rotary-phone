@@ -15,4 +15,3 @@ public class ExamsApplication {
         SpringApplication.run(ExamsApplication.class, args);
     }
 }
-
