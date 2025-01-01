@@ -73,10 +73,37 @@ public class ExaminerServiceImpl implements ExaminerService {
         // Если поровну не получается, то запоминаем остаток
         int addition = amount % servicesCount;
 
+        // Возвращаемая коллекция вопросов
+        List<Question> yieldQuestions = new ArrayList<>(questionsAvailable);
+
+        // Таблица "сервис вопросов -> количество запрашиваемых вопросов"
+        var workTable = getWorkTable(questionsPerService, questionServices, addition);
+
+        // Выполняем задание по получению требуемого количества вопросов
+        // из каждого сервиса
+        for (var entry : workTable.entrySet()) {
+            QuestionService service = entry.getKey();
+            int wanted = entry.getValue();
+
+            yieldQuestions.addAll(getQuestionsOf(service, wanted, GetQuestionsPolicy.GET_ALL_AVAILABLE));
+            if (yieldQuestions.size() >= amount) {
+                break;
+            }
+        }
+
+        return Collections.unmodifiableCollection(yieldQuestions);
+    }
+
+    @NotNull
+    private static HashMap<QuestionService, Integer> getWorkTable(final int questionsPerService,
+                                                                  final List<QuestionService> services,
+                                                                  int addition) {
+        final int servicesCount = services.size();
+
         // Пишем в таблицу "сервис вопросов -> количество запрашиваемых вопросов"
         // количество вопросов, которое нужно получить из каждого сервиса
-        var workTable = HashMap.newHashMap(servicesCount);
-        for (QuestionService service : questionServices) {
+        HashMap<QuestionService, Integer> workTable = HashMap.newHashMap(servicesCount);
+        for (QuestionService service : services) {
             // Сначала и по умолчанию пишем кол-во вопросов
             // на основании деления поровну
             workTable.put(service, questionsPerService);
@@ -94,8 +121,8 @@ public class ExaminerServiceImpl implements ExaminerService {
         // Распределяем остатки количества вопросов по сервисам
         if (addition > 0) {
             for (var entry : workTable.entrySet()) {
-                int available = ((QuestionService)entry.getKey()).getAmountOfQuestions();
-                int wanted = (int) entry.getValue();
+                int available = entry.getKey().getAmountOfQuestions();
+                int wanted = entry.getValue();
 
                 // Если в сервисе доступно вопросов больше, чем заявлено требуемых у него,
                 // то добавляем ему требуемое количество вопросов из остатка
@@ -109,23 +136,12 @@ public class ExaminerServiceImpl implements ExaminerService {
             }
         }
 
-        List<Question> yieldQuestions = new ArrayList<>(questionsAvailable);
-
-        // Выполняем задание по получению требуемого количества вопросов
-        // из каждого сервиса
-        for (var entry : workTable.entrySet()) {
-            QuestionService service = (QuestionService)entry.getKey();
-            int wanted = (int) entry.getValue();
-
-            yieldQuestions.addAll(getQuestionsOf(service, wanted, GetQuestionsPolicy.GET_ALL_AVAILABLE));
-            if (yieldQuestions.size() >= amount) {
-                break;
-            }
-        }
-
-        return Collections.unmodifiableCollection(yieldQuestions);
+        return workTable;
     }
 
+    /**
+     * Политика получения вопросов.
+     */
     private enum GetQuestionsPolicy {
         FAIL_ON_BAD_AMOUNT,
         GET_ALL_AVAILABLE,
