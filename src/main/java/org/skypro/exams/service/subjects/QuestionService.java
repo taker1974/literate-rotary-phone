@@ -4,8 +4,13 @@
 
 package org.skypro.exams.service.subjects;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skypro.exams.model.question.Question;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Collection;
 
 /**
@@ -59,4 +64,21 @@ public interface QuestionService {
      * @return количество вопросов
      */
     int getAmountOfQuestions();
+
+    /**
+     * Загружает вопросы из файла.<br>
+     * Если pathInResources равен null, то загружает вопросы из файла по умолчанию.
+     *
+     * @param jsonPathInResources путь к файлу json в ресурсах или null
+     * @param textPathInResources  путь к текстовому в ресурсах или null
+     */
+    void loadQuestions(@Nullable String jsonPathInResources, @Nullable String textPathInResources) throws URISyntaxException, IOException;
+
+    /**
+     * Сохраняет вопросы в файл.<br>
+     * Если jsonPathInResources равен null, то сохраняет вопросы в файл по умолчанию.
+     *
+     * @param jsonPathInResources путь к файлу в ресурсах или null
+     */
+    void saveQuestions(@Nullable String jsonPathInResources) throws IOException, URISyntaxException;
 }

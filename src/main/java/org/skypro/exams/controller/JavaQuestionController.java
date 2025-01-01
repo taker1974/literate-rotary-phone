@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Collection;
 
 /**
@@ -29,9 +31,12 @@ public class JavaQuestionController extends BaseQuestionController {
      *
      * @param questionService сервис для работы с вопросами
      */
-    public JavaQuestionController(@NotNull final JavaQuestionService questionService) {
+    public JavaQuestionController(@NotNull final JavaQuestionService questionService)
+            throws URISyntaxException, IOException {
 
         super(questionService);
+        questionService.loadQuestions(JavaQuestionService.JSON_QUESTIONS_PATH,
+                JavaQuestionService.TEXT_QUESTIONS_PATH);
     }
 
     /**

@@ -36,6 +36,8 @@ public class ArchQuestionController extends BaseQuestionController {
     public ArchQuestionController(@NotNull final ArchQuestionService questionService) {
 
         super(questionService);
+        // Здесь мы не станем загружать вопросы и ответы, так как этот контроллер
+        // должен порождать ошибки
     }
 
     /**

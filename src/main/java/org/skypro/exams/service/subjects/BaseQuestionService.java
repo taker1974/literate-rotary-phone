@@ -5,6 +5,7 @@
 package org.skypro.exams.service.subjects;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skypro.exams.model.question.Question;
 import org.skypro.exams.model.storage.QuestionRepository;
 import org.skypro.exams.tools.FileTools;
@@ -33,20 +34,30 @@ public abstract class BaseQuestionService implements QuestionService {
      *
      * @param questionRepository репозиторий вопросов
      */
-    protected BaseQuestionService(@NotNull QuestionRepository questionRepository,
-                                  final String jsonFilename, final String textFilename)
+    protected BaseQuestionService(@NotNull QuestionRepository questionRepository) {
+        random = new Random();
+        this.questionRepository = questionRepository;
+    }
+
+    @Override
+    public void loadQuestions(@Nullable String jsonPathInResources,
+                              @Nullable String textPathInResources)
             throws URISyntaxException, IOException {
 
-        random = new Random();
-
-        this.questionRepository = questionRepository;
-        if (FileTools.isResourceFileExists(jsonFilename)) {
-            this.questionRepository.loadQuestionsFromJsonFile(jsonFilename);
-        } else if (FileTools.isResourceFileExists(textFilename)) {
-            this.questionRepository.loadQuestionsFromTextFile(textFilename);
+        if (FileTools.isResourceFileExists(jsonPathInResources)) {
+            this.questionRepository.loadQuestionsFromJsonFile(jsonPathInResources);
+        } else if (FileTools.isResourceFileExists(textPathInResources)) {
+            this.questionRepository.loadQuestionsFromTextFile(textPathInResources);
         } else {
-            throw new IllegalStateException("Не удалось найти файл с вопросами");
+            throw new IllegalStateException("Не предоставлено имя файла с вопросами");
         }
+    }
+
+    @Override
+    public void saveQuestions(@Nullable String pathInResources)
+            throws IOException, URISyntaxException {
+
+        questionRepository.saveQuestionsToJson(pathInResources);
     }
 
     /**

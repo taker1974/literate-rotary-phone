@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -59,28 +60,64 @@ public class ExaminerServiceImpl implements ExaminerService {
             return Collections.emptyList();
         }
 
-        // Если вопрос только один, то
-        // выбираем его из случайного предметного сервиса
-        if (amount == 1) {
-            QuestionService service = questionServices.get(random.nextInt(questionServices.size() - 1));
-            return getQuestionsOf(service, amount);
+        int questionsAvailable = getQuestionsCount();
+        if (amount > questionsAvailable) {
+            throw new TooManyQuestionsException(this, amount, questionsAvailable);
         }
 
-        // Если вопросов больше одного, то
-        // набираем вопросы поровну из каждого сервиса.
-        // Если amount меньше количества сервисов: например, amount == 3, а сервисов 5,
-        // то из каждого сервиса выбираем по одному вопросу, пока не наберём 3 вопроса.
+        int servicesCount = questionServices.size();
 
-        int questionsPerService = Math.max(1, amount / questionServices.size());
-        List<Question> yieldQuestions = new ArrayList<>(getQuestionsCount());
+        // По возможности, распределяем вопросы поровну
+        int questionsPerService = Math.max(1, amount / servicesCount);
 
-        int addition = amount % 2;
-        if (addition > 0) {
-            yieldQuestions.addAll(getQuestionsOf(questionServices.getFirst(), addition));
-        }
+        // Если поровну не получается, то запоминаем остаток
+        int addition = amount % servicesCount;
 
+        // Пишем в таблицу "сервис вопросов -> количество запрашиваемых вопросов"
+        // количество вопросов, которое нужно получить из каждого сервиса
+        var workTable = HashMap.newHashMap(servicesCount);
         for (QuestionService service : questionServices) {
-            yieldQuestions.addAll(getQuestionsOf(service, questionsPerService));
+            // Сначала и по умолчанию пишем кол-во вопросов
+            // на основании деления поровну
+            workTable.put(service, questionsPerService);
+
+            // Если в сервисе вопросов меньше, чем требуется, то
+            // недостающее число запрашиваемых вопросов суммируем с ранее полученным
+            // остатком, а в таблице меняем количество вопросов на максимально доступное
+            int delta = questionsPerService - service.getAmountOfQuestions();
+            if (delta < 0) {
+                workTable.put(service, questionsPerService + delta);
+                addition += Math.abs(delta);
+            }
+        }
+
+        // Распределяем остатки количества вопросов по сервисам
+        if (addition > 0) {
+            for (var entry : workTable.entrySet()) {
+                int available = ((QuestionService)entry.getKey()).getAmountOfQuestions();
+                int wanted = (int) entry.getValue();
+
+                // Если в сервисе доступно вопросов больше, чем заявлено требуемых у него,
+                // то добавляем ему требуемое количество вопросов из остатка
+                if (available > wanted) {
+                    workTable.put(entry.getKey(), ++wanted);
+                    addition--;
+                    if (addition <= 0) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        List<Question> yieldQuestions = new ArrayList<>(questionsAvailable);
+
+        // Выполняем задание по получению требуемого количества вопросов
+        // из каждого сервиса
+        for (var entry : workTable.entrySet()) {
+            QuestionService service = (QuestionService)entry.getKey();
+            int wanted = (int) entry.getValue();
+
+            yieldQuestions.addAll(getQuestionsOf(service, wanted, GetQuestionsPolicy.GET_ALL_AVAILABLE));
             if (yieldQuestions.size() >= amount) {
                 break;
             }
@@ -89,23 +126,30 @@ public class ExaminerServiceImpl implements ExaminerService {
         return Collections.unmodifiableCollection(yieldQuestions);
     }
 
+    private enum GetQuestionsPolicy {
+        FAIL_ON_BAD_AMOUNT,
+        GET_ALL_AVAILABLE,
+    }
+
     private Collection<Question> getQuestionsOf(@NotNull final QuestionService questionService,
-                                                final int amount) {
+                                                final int amount, GetQuestionsPolicy policy) {
         List<Question> questions = new ArrayList<>(getQuestionsCount());
 
-        int realAmount = questionService.getAmountOfQuestions();
-        if (amount > realAmount) {
-            throw new TooManyQuestionsException(questionService, amount, realAmount);
+        int available = questionService.getAmountOfQuestions();
+        if (available < amount && policy == GetQuestionsPolicy.FAIL_ON_BAD_AMOUNT) {
+            throw new TooManyQuestionsException(questionService, amount, available);
         }
 
         // Очень редкий случай, но не стоит по этой причине
         // начинать играть в кости
-        if (amount == realAmount) {
+        if (amount == available) {
             questions.addAll(questionService.getQuestionsAll());
             return Collections.unmodifiableCollection(questions);
         }
 
-        while (questions.size() < amount) {
+        int need = (policy == GetQuestionsPolicy.GET_ALL_AVAILABLE) ? available : amount;
+
+        while (questions.size() < need) {
             var question = questionService.getRandomQuestion();
             if (!questions.contains(question)) {
                 questions.add(question);

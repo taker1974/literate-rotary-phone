@@ -6,12 +6,15 @@ package org.skypro.exams.controller;
 
 import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.question.Question;
+import org.skypro.exams.service.subjects.JavaQuestionService;
 import org.skypro.exams.service.subjects.MathQuestionService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Collection;
 
 /**
@@ -29,9 +32,13 @@ public class MathQuestionController extends BaseQuestionController {
      *
      * @param questionService сервис для работы с вопросами
      */
-    public MathQuestionController(@NotNull final MathQuestionService questionService) {
+    public MathQuestionController(@NotNull final MathQuestionService questionService)
+            throws URISyntaxException, IOException {
 
         super(questionService);
+        questionService.loadQuestions(JavaQuestionService.JSON_QUESTIONS_PATH,
+                JavaQuestionService.TEXT_QUESTIONS_PATH);
+
     }
 
     @RequestMapping("/exam/test")

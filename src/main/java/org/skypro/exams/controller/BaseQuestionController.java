@@ -5,15 +5,7 @@
 package org.skypro.exams.controller;
 
 import org.jetbrains.annotations.NotNull;
-import org.skypro.exams.model.question.Question;
-import org.skypro.exams.service.subjects.JavaQuestionService;
 import org.skypro.exams.service.subjects.QuestionService;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Collection;
 
 /**
  * Базовый класс для контроллеров работы с вопросами.<br>

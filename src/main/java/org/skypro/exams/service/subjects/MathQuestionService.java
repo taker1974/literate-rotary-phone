@@ -40,6 +40,6 @@ public final class MathQuestionService extends BaseQuestionService {
     public MathQuestionService(@NotNull QuestionRepository questionRepository)
             throws URISyntaxException, IOException {
 
-        super(questionRepository, JSON_QUESTIONS_PATH, TEXT_QUESTIONS_PATH);
+        super(questionRepository);
     }
 }

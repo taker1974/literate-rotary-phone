@@ -52,7 +52,12 @@ public final class FileTools {
      * @return true, если файл существует
      * @throws URISyntaxException если не удалось получить путь к файлу
      */
-    public static boolean isResourceFileExists(final String filename) throws URISyntaxException {
+    public static boolean isResourceFileExists(final String filename)
+            throws URISyntaxException {
+        if (filename == null) {
+            return false;
+        }
+
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
         final URI uri = Objects.requireNonNull(classloader.getResource(filename)).toURI();
 
