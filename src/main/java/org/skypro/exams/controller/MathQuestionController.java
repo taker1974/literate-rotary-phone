@@ -36,8 +36,8 @@ public class MathQuestionController extends BaseQuestionController {
             throws URISyntaxException, IOException {
 
         super(questionService);
-        questionService.loadQuestions(JavaQuestionService.JSON_QUESTIONS_PATH,
-                JavaQuestionService.TEXT_QUESTIONS_PATH);
+        questionService.loadQuestions(MathQuestionService.JSON_QUESTIONS_PATH,
+                MathQuestionService.TEXT_QUESTIONS_PATH);
 
     }
 
@@ -55,6 +55,11 @@ public class MathQuestionController extends BaseQuestionController {
     @PutMapping("/exam/math/add")
     public void addQuestion(final String questionText, final String answerText) {
         questionService.addQuestion(questionText, answerText);
+    }
+
+    @PutMapping("/exam/math/save")
+    public void saveQuestions() throws IOException, URISyntaxException {
+        questionService.saveQuestions(MathQuestionService.JSON_QUESTIONS_PATH);
     }
 
     /**

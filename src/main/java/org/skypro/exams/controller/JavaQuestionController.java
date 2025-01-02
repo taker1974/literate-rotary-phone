@@ -50,6 +50,11 @@ public class JavaQuestionController extends BaseQuestionController {
         questionService.addQuestion(questionText, answerText);
     }
 
+    @PutMapping("/exam/java/save")
+    public void saveQuestions() throws IOException, URISyntaxException {
+        questionService.saveQuestions(JavaQuestionService.JSON_QUESTIONS_PATH);
+    }
+
     /**
      * Получение всех вопросов.
      *
