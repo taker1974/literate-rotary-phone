@@ -10,18 +10,11 @@ import org.jetbrains.annotations.NotNull;
  * Исключение работы с сервисом экзаменатора: слишком много вопросов запрошено.
  *
  * @author Константин Терских, kostus.online.1974@yandex.ru, 2024
- * @version 1.1
+ * @version 1.2
  */
-public class TooManyQuestionsException extends RuntimeException {
+public class ExaminerServiceException extends Exception {
 
-    public TooManyQuestionsException(String message) {
+    public ExaminerServiceException(@NotNull final String message) {
         super(message);
-    }
-
-    public TooManyQuestionsException(@NotNull final Object o,
-                                     final int requested, final int available) {
-
-        super(o.getClass().getSimpleName() +
-                ": Количество вопросов не должно быть больше " + available + ", но запрошено " + requested);
     }
 }

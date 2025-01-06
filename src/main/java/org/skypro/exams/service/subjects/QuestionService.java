@@ -4,20 +4,17 @@
 
 package org.skypro.exams.service.subjects;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skypro.exams.model.question.Question;
+import org.skypro.exams.model.storage.QuestionRepositoryException;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Collection;
 
 /**
  * Объявляет методы работы с вопросами определенного предмета.
  *
  * @author Константин Терских, kostus.online.1974@yandex.ru, 2024
- * @version 1.1
+ * @version 1.2
  */
 public interface QuestionService {
 
@@ -30,35 +27,33 @@ public interface QuestionService {
      * Добавляет вопрос в хранилище.
      *
      * @param question экземпляр класса {@link Question}
-     * @throws org.skypro.exams.model.question.BadQuestionException в случае некорректного вопроса или если
-     *                                                              корректный вопрос не может быть добавлен
      */
-    void addQuestion(Question question);
+    void addQuestion(Question question)
+        throws QuestionRepositoryException;
 
     /**
      * Добавляет вопрос в хранилище.
      *
      * @param questionText текст вопроса
      * @param answerText   текст ответа
-     * @throws org.skypro.exams.model.question.BadQuestionException в случае некорректного вопроса или если
-     *                                                              корректный вопрос не может быть добавлен
      */
-    void addQuestion(String questionText, String answerText);
+    void addQuestion(String questionText, String answerText)
+        throws QuestionRepositoryException;
 
     /**
      * Удаляет вопрос из хранилища.
      *
      * @param question экземпляр класса {@link Question}
-     * @throws org.skypro.exams.model.question.BadQuestionException в случае некорректного вопроса или если
      *                                                              корректный вопрос не может быть удалён
      */
-    void removeQuestion(Question question);
+    void removeQuestion(Question question)
+        throws QuestionRepositoryException;
 
     /**
      * @return случайный вопрос {@link Question}
-     * @throws org.skypro.exams.model.question.BadQuestionException в случае, если вопросы недоступны
      */
-    Question getRandomQuestion();
+    Question getRandomQuestion()
+        throws QuestionRepositoryException;
 
     /**
      * @return количество вопросов
@@ -72,7 +67,8 @@ public interface QuestionService {
      * @param jsonPathInResources путь к файлу json в ресурсах или null
      * @param textPathInResources  путь к текстовому в ресурсах или null
      */
-    void loadQuestions(@Nullable String jsonPathInResources, @Nullable String textPathInResources) throws URISyntaxException, IOException;
+    void loadQuestions(@Nullable String jsonPathInResources, @Nullable String textPathInResources)
+        throws QuestionRepositoryException;
 
     /**
      * Сохраняет вопросы в файл.<br>
@@ -80,5 +76,6 @@ public interface QuestionService {
      *
      * @param jsonPathInResources путь к файлу в ресурсах или null
      */
-    void saveQuestions(@Nullable String jsonPathInResources) throws IOException, URISyntaxException;
+    void saveQuestions(@Nullable String jsonPathInResources)
+        throws QuestionRepositoryException;
 }

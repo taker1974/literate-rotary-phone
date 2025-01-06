@@ -16,6 +16,7 @@ import java.util.Objects;
  * @author Константин Терских, kostus.online.1974@yandex.ru, 2024
  * @version 1.1
  */
+@SuppressWarnings("java:S6206") // class -> record
 public final class Question {
     /**
      * Минимальная длина текста вопроса.
@@ -60,7 +61,9 @@ public final class Question {
      * @param questionText текст вопроса
      * @param answerText   текст ответа
      */
-    public Question(@NotNull String questionText, @NotNull String answerText) {
+    public Question(@NotNull String questionText, @NotNull String answerText)
+            throws BadQuestionException {
+
         if (StringTools.isBadString(questionText, MIN_QUESTION_LENGTH, MAX_QUESTION_LENGTH)) {
             throw new BadQuestionException(
                     String.format("Вопрос не должен быть null и его длина должна быть от %d до %d символов",
@@ -93,12 +96,12 @@ public final class Question {
         if (!(o instanceof Question that)) {
             return false;
         }
-        return Objects.equals(questionText, that.questionText) &&
-                Objects.equals(answerText, that.answerText);
+        return Objects.equals(getQuestionText(), that.getQuestionText()) &&
+                Objects.equals(getAnswerText(), that.getAnswerText());
     }
 
     @Override
     public String toString() {
-        return String.format("Вопрос: %s%nОтвет: %s", questionText, answerText);
+        return String.format("Вопрос: %s%nОтвет: %s", getQuestionText(), getAnswerText());
     }
 }

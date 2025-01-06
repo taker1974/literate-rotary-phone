@@ -17,6 +17,7 @@ import org.springframework.web.server.MethodNotAllowedException;
  * @version 1.1
  */
 @ControllerAdvice
+@SuppressWarnings("unused") // ошибочное определение объекта кода, как неиспользуемого
 public class ArchControllerAdvice {
 
     @ExceptionHandler(MethodNotAllowedException.class)

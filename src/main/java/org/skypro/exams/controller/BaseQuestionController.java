@@ -5,6 +5,9 @@
 package org.skypro.exams.controller;
 
 import org.jetbrains.annotations.NotNull;
+import org.skypro.exams.model.question.BadQuestionException;
+import org.skypro.exams.model.question.Question;
+import org.skypro.exams.model.storage.QuestionRepositoryException;
 import org.skypro.exams.service.subjects.QuestionService;
 
 /**
@@ -26,5 +29,18 @@ public abstract class BaseQuestionController {
      */
     protected BaseQuestionController(@NotNull final QuestionService questionService) {
         this.questionService = questionService;
+    }
+
+    protected void removeQuestion(final String questionText, final String answerText)
+            throws QuestionRepositoryException, BadQuestionException {
+
+        var questionToRemove = new Question(questionText, answerText);
+
+        for(var question : questionService.getQuestionsAll()){
+            if (question.equals(questionToRemove)) {
+                questionService.removeQuestion(question);
+                return;
+            }
+        }
     }
 }

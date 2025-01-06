@@ -8,9 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.storage.QuestionRepository;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 /**
  * Сервис для работы с вопросами по Java.
  *
@@ -37,9 +34,7 @@ public final class JavaQuestionService extends BaseQuestionService {
      *
      * @param questionRepository репозиторий вопросов
      */
-    public JavaQuestionService(@NotNull QuestionRepository questionRepository)
-            throws URISyntaxException, IOException {
-
+    public JavaQuestionService(@NotNull QuestionRepository questionRepository) {
         super(questionRepository);
     }
 }

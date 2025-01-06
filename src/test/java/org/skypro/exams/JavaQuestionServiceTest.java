@@ -9,81 +9,192 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.skypro.exams.model.question.BadQuestionException;
 import org.skypro.exams.model.question.Question;
 import org.skypro.exams.model.storage.QuestionRepository;
+import org.skypro.exams.model.storage.QuestionRepositoryException;
 import org.skypro.exams.service.subjects.JavaQuestionService;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Random;
 
+import static org.skypro.exams.ExamsTestTools.getSomeQuestions;
+
+/**
+ * QuestionRepositoryTest.
+ *
+ * @author Константин Терских, kostus.online.1974@yandex.ru, 2024
+ * @version 1.1
+ */
 @ExtendWith(MockitoExtension.class)
 class JavaQuestionServiceTest {
 
     @Mock
     private final Random random;
 
-    @Mock
+    private final QuestionRepository questionRepository;
     private final JavaQuestionService questionService;
 
-    @Spy
-    private final QuestionRepository questionRepository;
+    public JavaQuestionServiceTest() {
+        random = new Random();
 
-    public JavaQuestionServiceTest()
-            throws URISyntaxException, IOException {
-
-        this.random = new Random();
-
-        this.questionRepository = new QuestionRepository();
-        this.questionService = new JavaQuestionService(questionRepository);
+        questionRepository = new QuestionRepository();
+        questionService = new JavaQuestionService(questionRepository);
     }
 
     @Test
-    void whenGetAmountOfQuestions_thenReturnAmountOfQuestions() {
+    void whenGetQuestionsAll_thenReturnQuestionsAll() {
         questionRepository.clear();
-        Assertions.assertEquals(0, questionService.getAmountOfQuestions());
+        Assertions.assertEquals(0, questionService.getQuestionsAll().size());
 
         // добавляем пару вопросов вручную
-        var newQuestions = new Question[]{
-                new Question("Why?", "Just because"),
-                new Question("Why so serious?", "I'm so happy about it")
-        };
+        final Question[] newQuestions;
+        try {
+            newQuestions = getSomeQuestions();
+            for (var question : newQuestions) {
+                questionRepository.addQuestion(question);
+            }
+        } catch (BadQuestionException | QuestionRepositoryException e) {
+            Assertions.fail(e.getClass().getName() + ", но здесь не должно быть ошибок");
+            return;
+        }
 
-        questionRepository.addQuestion(newQuestions[0]);
-        questionRepository.addQuestion(newQuestions[1]);
+        Assertions.assertEquals(newQuestions.length, questionService.getQuestionsAll().size());
+    }
 
-        Assertions.assertEquals(questionRepository.getQuestionsAll().size(), questionService.getAmountOfQuestions());
+    @Test
+    void whenAddQuestionWithInstance_thenQuestionAdded() {
+        questionRepository.clear();
+        Assertions.assertEquals(0, questionService.getQuestionsAll().size());
+
+        Assertions.assertThrows(NullPointerException.class, () ->
+                questionService.addQuestion(null));
+
+        // добавляем пару вопросов вручную
+        final Question[] newQuestions;
+        try {
+            newQuestions = getSomeQuestions();
+            for (var question : newQuestions) {
+                questionRepository.addQuestion(question);
+            }
+        } catch (BadQuestionException | QuestionRepositoryException e) {
+            Assertions.fail(e.getClass().getName() + ", но здесь не должно быть ошибок");
+            return;
+        }
+
+        Assertions.assertEquals(newQuestions.length, questionService.getQuestionsAll().size());
+    }
+
+    @Test
+    void whenAddQuestionWithText_thenQuestionAdded() {
+        questionRepository.clear();
+        Assertions.assertEquals(0, questionService.getQuestionsAll().size());
+
+        Assertions.assertThrows(QuestionRepositoryException.class, () ->
+                questionService.addQuestion(null, null));
+        Assertions.assertThrows(QuestionRepositoryException.class, () ->
+                questionService.addQuestion("", null));
+        Assertions.assertThrows(QuestionRepositoryException.class, () ->
+                questionService.addQuestion("", ""));
+        Assertions.assertThrows(QuestionRepositoryException.class, () ->
+                questionService.addQuestion("Вопрос без ответа", ""));
+        Assertions.assertThrows(QuestionRepositoryException.class, () ->
+                questionService.addQuestion(null, "Ответ без вопроса"));
+
+        // добавляем пару вопросов вручную
+        final Question[] newQuestions;
+        try {
+            newQuestions = getSomeQuestions();
+            for (var question : newQuestions) {
+                questionRepository.addQuestion(question);
+            }
+        } catch (BadQuestionException | QuestionRepositoryException e) {
+            Assertions.fail(e.getClass().getName() + ", но здесь не должно быть ошибок");
+            return;
+        }
+
+        Assertions.assertEquals(newQuestions.length, questionService.getQuestionsAll().size());
+    }
+
+    @Test
+    void whenRemoveQuestionWithInstance_thenQuestionRemoved() {
+        questionRepository.clear();
+        Assertions.assertEquals(0, questionService.getQuestionsAll().size());
+
+        // добавляем пару вопросов вручную
+        final Question[] newQuestions;
+        try {
+            newQuestions = getSomeQuestions();
+            for (var question : newQuestions) {
+                questionRepository.addQuestion(question);
+            }
+        } catch (BadQuestionException | QuestionRepositoryException e) {
+            Assertions.fail(e.getClass().getName() + ", но здесь не должно быть ошибок");
+            return;
+        }
+
+        Assertions.assertThrows(NullPointerException.class, () ->
+                questionService.removeQuestion(null));
+
+        try {
+            questionService.removeQuestion(newQuestions[0]);
+        } catch (QuestionRepositoryException e) {
+            Assertions.fail(e.getClass().getName() + ", но здесь не должно быть ошибок");
+            return;
+        }
+
+        Assertions.assertEquals(newQuestions.length - 1, questionService.getQuestionsAll().size());
     }
 
     @Test
     void whenGetRandomQuestion_thenReturnRandomQuestion() {
         questionRepository.clear();
 
-        // добавляем несколько вопросов вручную
-        var newQuestions = new Question[]{
-                new Question("Why?", "Just because"),
-                new Question("Why so serious?", "I'm so happy about it"),
-                new Question("So, did you tell some?", "Maybe-baby"),
-                new Question("Who are you?", "I'm a programmer"),
-                new Question("How old are you?", "I saw many things, but I don't know what they are"),
-                new Question("Did you have anything?", "Yes, I have a few things"),
-        };
-        for (var question : newQuestions) {
-            questionRepository.addQuestion(question);
+        // добавляем пару вопросов вручную
+        final Question[] newQuestions;
+        try {
+            newQuestions = getSomeQuestions();
+            for (var question : newQuestions) {
+                questionRepository.addQuestion(question);
+            }
+        } catch (BadQuestionException | QuestionRepositoryException e) {
+            Assertions.fail(e.getClass().getName() + ", но здесь не должно быть ошибок");
+            return;
         }
 
-        int min = 1;
-        int max = questionRepository.getQuestionsAll().size();
+        // добавляем несколько вопросов вручную в эталонное хранилище
+        final Question[] newStandardQuestions;
+        try {
+            newStandardQuestions = getSomeQuestions();
+            for (var question : newQuestions) {
+                questionRepository.addQuestion(question);
+            }
+        } catch (BadQuestionException | QuestionRepositoryException e) {
+            Assertions.fail(e.getClass().getName() + ", но здесь не должно быть ошибок");
+            return;
+        }
 
-        Mockito.when(random.nextInt(min, max)).thenReturn(min);
-        Assertions.assertEquals(questionService.getRandomQuestion(), newQuestions[min - 1]);
+        HashSet<Question> standardRepository = HashSet.newHashSet(newStandardQuestions.length);
+        Collections.addAll(standardRepository, newStandardQuestions);
 
-        Mockito.when(random.nextInt(min, max)).thenReturn(max);
-        Assertions.assertEquals(questionService.getRandomQuestion(), newQuestions[max - 1]);
+        int randomMax = questionRepository.getQuestionsAll().size();
 
-        Mockito.when(random.nextInt(min, max)).thenReturn(max / 2);
-        Assertions.assertEquals(questionService.getRandomQuestion(), newQuestions[max / 2 - 1]);
+        try {
+            Mockito.when(random.nextInt(1, randomMax)).thenReturn(1);
+            Assertions.assertEquals(questionService.getRandomQuestion(),
+                    ExamsTestTools.getAt(standardRepository, 0));
+
+            Mockito.when(random.nextInt(1, randomMax)).thenReturn(randomMax);
+            Assertions.assertEquals(questionService.getRandomQuestion(),
+                    ExamsTestTools.getAt(standardRepository, randomMax - 1));
+
+            Mockito.when(random.nextInt(1, randomMax)).thenReturn(randomMax / 2);
+            Assertions.assertEquals(questionService.getRandomQuestion(),
+                    ExamsTestTools.getAt(standardRepository, (randomMax / 2) - 1));
+        } catch (QuestionRepositoryException e) {
+            Assertions.fail(e.getClass().getName() + ", но здесь не должно быть ошибок");
+        }
     }
 }

@@ -4,12 +4,9 @@
 
 package org.skypro.exams.tools;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Objects;
 
 /**
@@ -25,25 +22,6 @@ public final class FileTools {
     }
 
     // https://www.delftstack.com/howto/java/how-to-get-the-current-working-directory-in-java/
-
-    /**
-     * Получить путь к папке с классом.
-     *
-     * @param thisClass класс
-     * @return путь к папке с классом
-     * @throws IllegalArgumentException если класс не найден
-     */
-    @NotNull
-    public static String getClassDirectory(@NotNull Class<?> thisClass) {
-        final String className = thisClass.getSimpleName() + ".class";
-        final URL url = thisClass.getResource(className);
-        if (url == null) {
-            throw new IllegalArgumentException("Не удалось получить путь к файлу " + className);
-        }
-
-        final File file = new File(url.getFile());
-        return file.getParent();
-    }
 
     /**
      * Проверить, существует ли ресурсный файл.

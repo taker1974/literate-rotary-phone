@@ -7,6 +7,7 @@ package org.skypro.exams.controller;
 import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.question.Question;
 import org.skypro.exams.service.examiner.ExaminerService;
+import org.skypro.exams.service.examiner.ExaminerServiceException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,6 +20,7 @@ import java.util.Collection;
  * @version 1.1
  */
 @RestController
+@SuppressWarnings("unused") // ошибочное определение объекта кода, как неиспользуемого
 public class ExamController {
 
     @NotNull
@@ -29,7 +31,7 @@ public class ExamController {
     }
 
     @RequestMapping("/exam/get")
-    public Collection<Question> getQuestions(int amount) {
+    public Collection<Question> getQuestions(int amount) throws ExaminerServiceException {
         return examinerService.getQuestions(amount);
     }
 }

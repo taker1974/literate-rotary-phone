@@ -7,7 +7,6 @@ package org.skypro.exams.controller;
 import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.question.Question;
 import org.skypro.exams.service.subjects.ArchQuestionService;
-import org.skypro.exams.service.subjects.JavaQuestionService;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,6 +25,7 @@ import java.util.List;
  * @version 1.1
  */
 @RestController
+@SuppressWarnings("unused") // ошибочное определение объекта кода, как неиспользуемого
 public class ArchQuestionController extends BaseQuestionController {
 
     /**

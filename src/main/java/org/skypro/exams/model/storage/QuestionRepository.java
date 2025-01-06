@@ -10,17 +10,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
+import org.skypro.exams.model.question.BadQuestionException;
 import org.skypro.exams.model.question.Question;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,7 +42,7 @@ public final class QuestionRepository {
     //  https://javarush.com/groups/posts/2590-top-50-java-core-voprosov-i-otvetov-na-sobesedovanii-chastjh-1
 
     @NotNull
-    private final Collection<Question> questions;
+    private final Collection<@NotNull Question> questions;
 
     private static final int INITIAL_CAPACITY = 100;
 
@@ -54,16 +51,6 @@ public final class QuestionRepository {
      */
     public QuestionRepository() {
         this.questions = HashSet.newHashSet(INITIAL_CAPACITY);
-    }
-
-    /**
-     * Конструктор с параметрами.
-     *
-     * @param questions коллекция вопросов
-     */
-    @Autowired
-    public QuestionRepository(@NotNull Collection<Question> questions) {
-        this.questions = questions;
     }
 
     /**
@@ -99,11 +86,12 @@ public final class QuestionRepository {
      * </p>
      *
      * @param name имя файла в директории
-     * @throws IOException        если файл не найден
-     * @throws URISyntaxException если файл не найден
+     * @throws QuestionRepositoryException в случае ошибки работы с именем файла или с файлом
      */
     public void loadQuestionsFromTextFile(final String name)
-            throws IOException, URISyntaxException {
+            throws QuestionRepositoryException {
+
+        final URI uri = getUri(name, false);
 
         /*  Файл должен находиться в директории статических ресурсов.
             Структура файла:
@@ -141,8 +129,6 @@ public final class QuestionRepository {
 
             Создаем объект Question и добавляем его в коллекцию.
          */
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        final URI uri = Objects.requireNonNull(classloader.getResource(name)).toURI();
 
         final var sb = new StringBuilder();
         try (final Stream<String> stream = Files.lines(Paths.get(uri))) {
@@ -155,25 +141,53 @@ public final class QuestionRepository {
                             sb.append(QUESTIONS_DELIMITER);
                         }
                     });
+        } catch (Exception e) {
+            throw new QuestionRepositoryException(e.getMessage());
         }
 
         final String[] chunks = sb.toString().split(QUESTIONS_DELIMITER);
-        Stream.of(chunks).
-                forEach(chunk -> {
-                    final String[] lines = chunk.split("\n");
-                    if (lines.length >= 2) {
-                        final String questionText = lines[0];
+        try {
+            for (final String chunk : chunks) {
+                final String[] lines = chunk.split("\n");
+                if (lines.length >= 2) {
+                    final String questionText = lines[0];
 
-                        final StringBuilder innerSb = new StringBuilder();
-                        for (int i = 1; i < lines.length; i++) {
-                            innerSb.append(lines[i]).append("\n");
-                        }
-                        final String answerText = innerSb.toString();
-
-                        final Question question = new Question(questionText, answerText);
-                        questions.add(question);
+                    final StringBuilder innerSb = new StringBuilder();
+                    for (int i = 1; i < lines.length; i++) {
+                        innerSb.append(lines[i]).append("\n");
                     }
-                });
+                    final String answerText = innerSb.toString();
+
+                    final var question = new Question(questionText, answerText);
+                    questions.add(question);
+                }
+            }
+        } catch (BadQuestionException e) {
+            throw new QuestionRepositoryException(e.getMessage());
+        }
+    }
+
+    @NotNull
+    private static URI getUri(String name, boolean isRoot)
+            throws QuestionRepositoryException {
+
+        if (name == null) {
+            throw new QuestionRepositoryException("Имя текстового файла с вопросами не может быть null");
+        }
+
+        final String fileName = name.trim();
+        if (fileName.isEmpty() && !isRoot) {
+            throw new QuestionRepositoryException("Имя текстового файла с вопросами не может быть пустым");
+        }
+
+        final URI uri;
+        try {
+            ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+            uri = Objects.requireNonNull(classloader.getResource(fileName)).toURI();
+        } catch (Exception e) {
+            throw new QuestionRepositoryException(e.getMessage());
+        }
+        return uri;
     }
 
     /**
@@ -184,27 +198,31 @@ public final class QuestionRepository {
      * </p>
      *
      * @param name путь к файлу
-     * @throws IOException        если файл не может быть создан
-     * @throws URISyntaxException если невозможно создать URI
+     * @throws QuestionRepositoryException в случае ошибки работы с именем файла или с файлом
      */
     public void saveQuestionsToJson(final String name)
-            throws IOException, URISyntaxException {
+            throws QuestionRepositoryException {
 
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        final URI resourceUri = Objects.requireNonNull(classloader.getResource("")).toURI();
+        final URI uri = getUri("", true);
 
-        final Path path = Paths.get(resourceUri).resolve(name);
-        final File file = new File(path.toString());
+        try {
+            final Path path = Paths.get(uri).resolve(name);
+            final File file = new File(path.toString());
 
-        // https://stackoverflow.com/questions/4105795/pretty-print-json-in-java
+            // https://stackoverflow.com/questions/4105795/pretty-print-json-in-java
 
-        final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        final String uglyJsonString = gson.toJson(questions);
-        final JsonElement jsonElement = JsonParser.parseString(uglyJsonString);
-        String prettyJsonString = gson.toJson(jsonElement);
+            final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            final String uglyJsonString = gson.toJson(questions);
+            final JsonElement jsonElement = JsonParser.parseString(uglyJsonString);
+            String prettyJsonString = gson.toJson(jsonElement);
 
-        try (FileWriter writer = new FileWriter(file)) {
-            writer.write(prettyJsonString);
+            Files.createDirectories(path.getParent());
+
+            try (FileWriter writer = new FileWriter(file)) {
+                writer.write(prettyJsonString);
+            }
+        } catch (Exception e) {
+            throw new QuestionRepositoryException(e.getMessage());
         }
     }
 
@@ -216,34 +234,45 @@ public final class QuestionRepository {
      * </p>
      *
      * @param name имя файла в директории
-     * @throws FileNotFoundException    если файл не найден
-     * @throws URISyntaxException       если невозможно создать URI
-     * @throws NullPointerException     если коллекция прочитана из файла с ошибками
      * @throws IllegalArgumentException если прочитанная из файла коллекция не может быть добавлена в хранилище
      */
     public void loadQuestionsFromJsonFile(String name)
-            throws FileNotFoundException, URISyntaxException {
+            throws QuestionRepositoryException {
 
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        final URI uri = Objects.requireNonNull(classloader.getResource(name)).toURI();
+        final URI uri = getUri(name, false);
 
-        final String path = uri.getPath();
-        final File file = new File(path);
+        try {
+            final String path = uri.getPath();
+            final File file = new File(path);
 
-        // https://java2blog.com/gson-fromjson/
-        // https://www.baeldung.com/gson-deserialization-guide
+            // https://java2blog.com/gson-fromjson/
+            // https://www.baeldung.com/gson-deserialization-guide
 
-        final Gson gson = new Gson();
-        Collection<Question> collection = gson.fromJson(new FileReader(file),
-                new TypeToken<Collection<Question>>() {
-                }.getType());
-
-        if (collection == null) {
-            throw new NullPointerException("Ошибка загрузки коллекции вопросов из файла json " + name + ": коллекция " +
-                    "не может быть null");
+            final Gson gson = new Gson();
+            Collection<Question> collection = fromJsonFile(gson, file);
+            questions.addAll(collection);
+        } catch (Exception e) {
+            throw new QuestionRepositoryException(e.getMessage());
         }
+    }
 
-        questions.addAll(collection);
+    private Collection<Question> fromJsonFile(Gson gson, File file)
+            throws QuestionRepositoryException {
+
+        Collection<Question> collection;
+        try (var reader = new FileReader(file)) {
+            collection = gson.fromJson(reader,
+                    new TypeToken<Collection<Question>>() {
+                    }.getType());
+
+            if (collection == null) {
+                throw new NullPointerException("Ошибка загрузки коллекции вопросов из файла json " +
+                        file.getName() + ": коллекция не может быть null");
+            }
+        } catch (Exception e) {
+            throw new QuestionRepositoryException(e.getMessage());
+        }
+        return collection;
     }
 
     /**
@@ -251,7 +280,12 @@ public final class QuestionRepository {
      *
      * @param question вопрос
      */
-    public void addQuestion(Question question) {
+    public void addQuestion(Question question)
+            throws QuestionRepositoryException {
+
+        if (question == null) {
+            throw new QuestionRepositoryException("Ошибка добавления вопроса в хранилище: вопрос не может быть null");
+        }
         questions.add(question);
     }
 
@@ -260,7 +294,12 @@ public final class QuestionRepository {
      *
      * @param question вопрос
      */
-    public void removeQuestion(Question question) {
+    public void removeQuestion(Question question)
+            throws QuestionRepositoryException {
+
+        if (question == null) {
+            throw new QuestionRepositoryException("Ошибка удаления вопроса из хранилища: вопрос не может быть null");
+        }
         questions.remove(question);
     }
 

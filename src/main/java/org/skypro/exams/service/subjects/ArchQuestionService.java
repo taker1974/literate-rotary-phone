@@ -8,9 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.storage.QuestionRepository;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 /**
  * Сервис для работы с вопросами по архитектуре ПО.
  *
@@ -24,12 +21,14 @@ public final class ArchQuestionService extends BaseQuestionService {
      * Путь к файлу json с вопросами (default).
      */
     @NotNull
+    @SuppressWarnings("unused") // не должно использоваться, так как относится к заглушке
     public static final String JSON_QUESTIONS_PATH = "static/Questions-Arch.json";
 
     /**
      * Путь к файлу txt с вопросами (fallback).
      */
     @NotNull
+    @SuppressWarnings("unused") // не должно использоваться, так как относится к заглушке
     public static final String TEXT_QUESTIONS_PATH = "static/Questions-Arch.txt";
 
     /**
@@ -37,9 +36,7 @@ public final class ArchQuestionService extends BaseQuestionService {
      *
      * @param questionRepository репозиторий вопросов
      */
-    public ArchQuestionService(@NotNull QuestionRepository questionRepository)
-            throws URISyntaxException, IOException {
-
+    public ArchQuestionService(@NotNull QuestionRepository questionRepository) {
         super(questionRepository);
     }
 }

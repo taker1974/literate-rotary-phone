@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Реализация интерфейса экзаменатора {@link ExaminerService}.<br>
@@ -24,10 +23,8 @@ import java.util.Random;
  * @version 1.1
  */
 @Service
+@SuppressWarnings("unused") // ошибочное определение объекта кода, как неиспользуемого
 public class ExaminerServiceImpl implements ExaminerService {
-
-    @NotNull
-    private final Random random;
 
     @NotNull
     private final List<QuestionService> questionServices;
@@ -38,12 +35,13 @@ public class ExaminerServiceImpl implements ExaminerService {
      * @param services сервисы вопросов
      */
     public ExaminerServiceImpl(@NotNull final QuestionService... services) {
-        random = new Random();
         questionServices = List.of(services);
     }
 
     private int getQuestionsCount() {
-        return questionServices.stream().mapToInt(QuestionService::getAmountOfQuestions).sum();
+        return questionServices.stream()
+                .mapToInt(QuestionService::getAmountOfQuestions)
+                .sum();
     }
 
     /**
@@ -55,14 +53,16 @@ public class ExaminerServiceImpl implements ExaminerService {
      */
     @Override
     @NotNull
-    public final Collection<Question> getQuestions(final int amount) {
+    public final Collection<Question> getQuestions(final int amount) throws ExaminerServiceException {
         if (amount < 1) {
             return Collections.emptyList();
         }
 
         int questionsAvailable = getQuestionsCount();
         if (amount > questionsAvailable) {
-            throw new TooManyQuestionsException(this, amount, questionsAvailable);
+            throw new ExaminerServiceException(this.getClass().getName() +
+                    ": Количество вопросов не должно быть больше " + questionsAvailable +
+                    ", но запрошено " + amount);
         }
 
         int servicesCount = questionServices.size();
@@ -111,7 +111,7 @@ public class ExaminerServiceImpl implements ExaminerService {
             // Если в сервисе вопросов меньше, чем требуется, то
             // недостающее число запрашиваемых вопросов суммируем с ранее полученным
             // остатком, а в таблице меняем количество вопросов на максимально доступное
-            int delta = questionsPerService - service.getAmountOfQuestions();
+            int delta = service.getAmountOfQuestions() - questionsPerService;
             if (delta < 0) {
                 workTable.put(service, questionsPerService + delta);
                 addition += Math.abs(delta);
@@ -147,13 +147,18 @@ public class ExaminerServiceImpl implements ExaminerService {
         GET_ALL_AVAILABLE,
     }
 
+    @SuppressWarnings("SameParameterValue") // policy пока вызывается только с GET_ALL_AVAILABLE
     private Collection<Question> getQuestionsOf(@NotNull final QuestionService questionService,
-                                                final int amount, GetQuestionsPolicy policy) {
+                                                final int amount, GetQuestionsPolicy policy)
+            throws ExaminerServiceException {
+
         List<Question> questions = new ArrayList<>(getQuestionsCount());
 
         int available = questionService.getAmountOfQuestions();
         if (available < amount && policy == GetQuestionsPolicy.FAIL_ON_BAD_AMOUNT) {
-            throw new TooManyQuestionsException(questionService, amount, available);
+            throw new ExaminerServiceException(questionService.getClass().getName() +
+                    ": Количество вопросов не должно быть больше " + available +
+                    ", но запрошено " + amount);
         }
 
         // Очень редкий случай, но не стоит по этой причине
@@ -163,13 +168,20 @@ public class ExaminerServiceImpl implements ExaminerService {
             return Collections.unmodifiableCollection(questions);
         }
 
-        int need = (policy == GetQuestionsPolicy.GET_ALL_AVAILABLE) ? available : amount;
+        if (amount > available && policy == GetQuestionsPolicy.GET_ALL_AVAILABLE) {
+            questions.addAll(questionService.getQuestionsAll());
+            return Collections.unmodifiableCollection(questions);
+        }
 
-        while (questions.size() < need) {
-            var question = questionService.getRandomQuestion();
-            if (!questions.contains(question)) {
-                questions.add(question);
+        try {
+            while (questions.size() < amount) {
+                var question = questionService.getRandomQuestion();
+                if (!questions.contains(question)) {
+                    questions.add(question);
+                }
             }
+        } catch (Exception e) {
+            throw new ExaminerServiceException(e.getMessage());
         }
 
         return Collections.unmodifiableCollection(questions);

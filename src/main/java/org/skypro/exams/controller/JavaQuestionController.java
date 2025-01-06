@@ -5,15 +5,15 @@
 package org.skypro.exams.controller;
 
 import org.jetbrains.annotations.NotNull;
+import org.skypro.exams.model.question.BadQuestionException;
 import org.skypro.exams.model.question.Question;
+import org.skypro.exams.model.storage.QuestionRepositoryException;
 import org.skypro.exams.service.subjects.JavaQuestionService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Collection;
 
 /**
@@ -24,6 +24,7 @@ import java.util.Collection;
  * @version 1.1
  */
 @RestController
+@SuppressWarnings("unused") // ошибочное определение объекта кода, как неиспользуемого
 public class JavaQuestionController extends BaseQuestionController {
 
     /**
@@ -32,10 +33,12 @@ public class JavaQuestionController extends BaseQuestionController {
      * @param questionService сервис для работы с вопросами
      */
     public JavaQuestionController(@NotNull final JavaQuestionService questionService)
-            throws URISyntaxException, IOException {
+            throws QuestionRepositoryException {
 
         super(questionService);
-        questionService.loadQuestions(JavaQuestionService.JSON_QUESTIONS_PATH,
+
+        questionService.loadQuestions(
+                JavaQuestionService.JSON_QUESTIONS_PATH,
                 JavaQuestionService.TEXT_QUESTIONS_PATH);
     }
 
@@ -46,12 +49,12 @@ public class JavaQuestionController extends BaseQuestionController {
      * @param answerText   текст ответа
      */
     @PutMapping("/exam/java/add")
-    public void addQuestion(final String questionText, final String answerText) {
+    public void addQuestion(final String questionText, final String answerText) throws QuestionRepositoryException {
         questionService.addQuestion(questionText, answerText);
     }
 
     @PutMapping("/exam/java/save")
-    public void saveQuestions() throws IOException, URISyntaxException {
+    public void saveQuestions() throws QuestionRepositoryException {
         questionService.saveQuestions(JavaQuestionService.JSON_QUESTIONS_PATH);
     }
 
@@ -72,11 +75,8 @@ public class JavaQuestionController extends BaseQuestionController {
      * @param answerText   текст ответа
      */
     @DeleteMapping("/exam/java/remove")
-    public void removeQuestion(final String questionText, final String answerText) {
-        var questionToRemove = new Question(questionText, answerText);
-        questionService.getQuestionsAll().stream()
-                .filter(question -> question.equals(questionToRemove))
-                .findFirst()
-                .ifPresent(questionService::removeQuestion);
+    public void removeQuestion(final String questionText, final String answerText)
+            throws QuestionRepositoryException, BadQuestionException {
+        super.removeQuestion(questionText, answerText);
     }
 }

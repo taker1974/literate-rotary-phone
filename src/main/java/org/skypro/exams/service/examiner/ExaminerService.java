@@ -24,5 +24,5 @@ public interface ExaminerService {
      * @return вопросы
      */
     @NotNull
-    Collection<Question> getQuestions(final int amount);
+    Collection<Question> getQuestions(final int amount) throws ExaminerServiceException;
 }

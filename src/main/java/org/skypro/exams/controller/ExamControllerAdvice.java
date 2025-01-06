@@ -4,7 +4,7 @@
 
 package org.skypro.exams.controller;
 
-import org.skypro.exams.service.examiner.TooManyQuestionsException;
+import org.skypro.exams.service.examiner.ExaminerServiceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -17,10 +17,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
  * @version 1.1
  */
 @ControllerAdvice
+@SuppressWarnings("unused") // ошибочное определение объекта кода, как неиспользуемого
 public class ExamControllerAdvice {
 
-    @ExceptionHandler(TooManyQuestionsException.class)
-    public ResponseEntity<ExamError> handleTooManyQuestionsException(TooManyQuestionsException e) {
+    @ExceptionHandler(ExaminerServiceException.class)
+    public ResponseEntity<ExamError> handleTooManyQuestionsException(ExaminerServiceException e) {
         var error = new ExamError("0x0002h", e.getMessage());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
