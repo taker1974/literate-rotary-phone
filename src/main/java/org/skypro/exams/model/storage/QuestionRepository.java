@@ -310,4 +310,11 @@ public final class QuestionRepository {
     public Collection<Question> getQuestionsAll() {
         return Collections.unmodifiableCollection(questions);
     }
+
+    /**
+     * @return количество вопросов в хранилище
+     */
+    public int getSize() {
+        return questions.size();
+    }
 }

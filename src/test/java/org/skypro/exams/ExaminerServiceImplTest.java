@@ -103,9 +103,10 @@ class ExaminerServiceImplTest {
 
         // Заполним каждое хранилище вопросами вида "1-object:uuid", "1-object:uuid", .. "1-object"
         // где 1 .. 3 - префиксы хранилищ java, math. arch etc.
+        final int[] repositoriesAmount = {10, 10, 10};
         try {
             for (int i = 0; i < repositories.length; i++) {
-                var questions = ExamsTestTools.getPredictableQuestions(10, i + 1 + "-object");
+                var questions = ExamsTestTools.getPredictableQuestions(repositoriesAmount[i], i + 1 + "-object");
                 for (var question : questions) {
                     repositories[i].addQuestion(question);
                 }
@@ -115,12 +116,13 @@ class ExaminerServiceImplTest {
             return;
         }
 
-        // Попробуем выбрать 9 вопросов
+        // Попробуем выбрать 9 вопросов из 30: по 3 вопроса из каждого хранилища
+        int amount = 9;
         try {
-            var questions = examinerService.getQuestions(9);
+            var questions = examinerService.getQuestions(amount);
 
             // Проверим общее количество вопросов
-            Assertions.assertEquals(9, questions.size());
+            Assertions.assertEquals(amount, questions.size());
 
             // Проверим, что всех вопросов поровну, по 3 вопроса из каждого хранилища
             int c1 = 0, c2 = 0, c3 = 0;
@@ -135,9 +137,68 @@ class ExaminerServiceImplTest {
                     c3++;
                 }
             }
-            Assertions.assertEquals(3, c1);
-            Assertions.assertEquals(3, c2);
-            Assertions.assertEquals(3, c3);
+            Assertions.assertEquals(amount / repositories.length, c1);
+            Assertions.assertEquals(amount / repositories.length, c2);
+            Assertions.assertEquals(amount / repositories.length, c3);
+        } catch (ExaminerServiceException e) {
+            Assertions.fail(examinerService.getClass().getName() + ", но здесь не должно быть ошибок");
+        }
+    }
+
+    /**
+     * Из хранилищ по 10, 7 и 1 (18 всего) вопросов выберем "по 6" вопросов.
+     * Алгоритм выборки вопросов сначала вычисляет условное количество вопросов на хранилище.
+     * В данном случае это по 6 вопросов на хранилище. Строится таблица вида "хранилище -> количество вопросов".
+     * Затем, в случае необходимости, таблица корректируется так, чтобы "разбросать" вопросы
+     * по хранилищам, не превышая количество вопросов на хранилище. Недостача переносится на другие хранилища.
+     * В результате должно получиться:
+     * 10 (6+4) из хранилища 1
+     * 7 (6+1)из хранилища 2
+     * 1 (все) из хранилища 3
+     */
+    @Test
+    void whenGetAmountEquallyDivisibleAmountFromNotEquallyRepos_thenReturnsProportionalAmountOfQuestions() {
+        clearRepositories();
+
+        // Заполним каждое хранилище вопросами вида "1-object:uuid", "1-object:uuid", .. "1-object"
+        // где 1 .. 3 - префиксы хранилищ java, math. arch etc.
+        final int[] repositoriesAmount = {10, 7, 1};
+        try {
+            for (int i = 0; i < repositories.length; i++) {
+                var questions = ExamsTestTools.getPredictableQuestions(repositoriesAmount[i], i + 1 + "-object");
+                for (var question : questions) {
+                    repositories[i].addQuestion(question);
+                }
+            }
+        } catch (BadQuestionException | QuestionRepositoryException e) {
+            Assertions.fail(examinerService.getClass().getName() + ", но здесь не должно быть ошибок");
+            return;
+        }
+
+        // Попробуем выбрать все 18 вопросов из 18
+        int amount = 18;
+        try {
+            var questions = examinerService.getQuestions(amount);
+
+            // Проверим общее количество вопросов
+            Assertions.assertEquals(amount, questions.size());
+
+            // Проверим предположение о количестве вопросов из каждого хранилища (смотри выше)
+            int c1 = 0, c2 = 0, c3 = 0;
+            for (var question : questions) {
+                if (question.getQuestionText().startsWith("1-")) {
+                    c1++;
+                }
+                if (question.getQuestionText().startsWith("2-")) {
+                    c2++;
+                }
+                if (question.getQuestionText().startsWith("3-")) {
+                    c3++;
+                }
+            }
+            Assertions.assertEquals(10, c1);
+            Assertions.assertEquals(7, c2);
+            Assertions.assertEquals(1, c3);
         } catch (ExaminerServiceException e) {
             Assertions.fail(examinerService.getClass().getName() + ", но здесь не должно быть ошибок");
         }

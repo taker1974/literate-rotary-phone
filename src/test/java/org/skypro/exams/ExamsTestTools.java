@@ -7,9 +7,11 @@ package org.skypro.exams;
 import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.question.BadQuestionException;
 import org.skypro.exams.model.question.Question;
+import org.skypro.exams.model.storage.QuestionRepository;
 
 import java.util.Collection;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 /**
  * ExamsTestTools.
@@ -63,5 +65,9 @@ public final class ExamsTestTools {
             questions[i] = question;
         }
         return questions;
+    }
+
+    public static int getQuestionsCount(final QuestionRepository[] repository) {
+        return Stream.of(repository).mapToInt(QuestionRepository::getSize).sum();
     }
 }

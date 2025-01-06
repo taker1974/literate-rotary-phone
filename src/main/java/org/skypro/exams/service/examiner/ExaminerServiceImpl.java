@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Реализация интерфейса экзаменатора {@link ExaminerService}.<br>
@@ -119,15 +120,12 @@ public class ExaminerServiceImpl implements ExaminerService {
         }
 
         // Распределяем остатки количества вопросов по сервисам
-        if (addition > 0) {
+        while (addition > 0) {
             for (var entry : workTable.entrySet()) {
-                int available = entry.getKey().getAmountOfQuestions();
-                int wanted = entry.getValue();
-
-                // Если в сервисе доступно вопросов больше, чем заявлено требуемых у него,
-                // то добавляем ему требуемое количество вопросов из остатка
-                if (available > wanted) {
-                    workTable.put(entry.getKey(), ++wanted);
+                int available = getAvailableQuestions(entry);
+                if (available > 0) {
+                    var workValue = entry.getValue();
+                    workTable.put(entry.getKey(), ++workValue);
                     addition--;
                     if (addition <= 0) {
                         break;
@@ -137,6 +135,10 @@ public class ExaminerServiceImpl implements ExaminerService {
         }
 
         return workTable;
+    }
+
+    private static int getAvailableQuestions(@NotNull Map.Entry<QuestionService, Integer> entry) {
+        return entry.getKey().getAmountOfQuestions() - entry.getValue();
     }
 
     /**
