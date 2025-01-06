@@ -12,6 +12,7 @@ import com.google.gson.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.question.BadQuestionException;
 import org.skypro.exams.model.question.Question;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -34,6 +35,7 @@ import java.util.stream.Stream;
  * @version 1.1
  */
 @Component
+@Scope("prototype") // для простоты реализации
 public final class QuestionRepository {
 
     // Вопросы брал откуда-то оттуда:

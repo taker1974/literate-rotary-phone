@@ -12,6 +12,7 @@ import org.skypro.exams.service.subjects.MathQuestionService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
@@ -49,7 +50,10 @@ public class MathQuestionController extends BaseQuestionController {
      * @param answerText   текст ответа
      */
     @PutMapping("/exam/math/add")
-    public void addQuestion(final String questionText, final String answerText) throws QuestionRepositoryException {
+    public void addQuestion(
+            @RequestParam(name = "question") final String questionText,
+            @RequestParam(name = "answer") final String answerText)
+            throws QuestionRepositoryException {
         questionService.addQuestion(questionText, answerText);
     }
 
@@ -75,7 +79,10 @@ public class MathQuestionController extends BaseQuestionController {
      * @param answerText   текст ответа
      */
     @DeleteMapping("/exam/math/remove")
-    public void removeQuestion(final String questionText, final String answerText)
+    @Override
+    public void removeQuestion(
+            @RequestParam(name = "question") final String questionText,
+            @RequestParam(name = "answer") final String answerText)
             throws BadQuestionException, QuestionRepositoryException {
         super.removeQuestion(questionText, answerText);
     }

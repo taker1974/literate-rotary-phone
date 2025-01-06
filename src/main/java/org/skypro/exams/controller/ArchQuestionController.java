@@ -11,6 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.MethodNotAllowedException;
 
@@ -47,7 +48,9 @@ public class ArchQuestionController extends BaseQuestionController {
      * @param answerText   текст ответа
      */
     @PutMapping("/exam/arch/add")
-    public void addQuestion(final String questionText, final String answerText) {
+    public void addQuestion(
+            @RequestParam(name = "question") final String questionText,
+            @RequestParam(name = "answer") final String answerText) {
         throw new MethodNotAllowedException(HttpMethod.PUT, List.of(HttpMethod.HEAD));
     }
 
@@ -68,7 +71,10 @@ public class ArchQuestionController extends BaseQuestionController {
      * @param answerText   текст ответа
      */
     @DeleteMapping("/exam/arch/remove")
-    public void removeQuestion(final String questionText, final String answerText) {
+    @Override
+    public void removeQuestion(
+            @RequestParam(name = "question") final String questionText,
+            @RequestParam(name = "answer") final String answerText) {
         throw new MethodNotAllowedException(HttpMethod.DELETE, List.of(HttpMethod.HEAD));
     }
 }

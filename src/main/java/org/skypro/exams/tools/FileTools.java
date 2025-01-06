@@ -28,20 +28,22 @@ public final class FileTools {
      *
      * @param filename имя файла
      * @return true, если файл существует
-     * @throws URISyntaxException если не удалось получить путь к файлу
      */
-    public static boolean isResourceFileExists(final String filename)
-            throws URISyntaxException {
+    public static boolean isResourceFileExists(final String filename) {
         if (filename == null) {
             return false;
         }
 
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        final URI uri = Objects.requireNonNull(classloader.getResource(filename)).toURI();
+        try {
+            ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+            final URI uri = Objects.requireNonNull(classloader.getResource(filename)).toURI();
 
-        final String path = uri.getPath();
-        final File file = new File(path);
+            final String path = uri.getPath();
+            final File file = new File(path);
 
-        return file.exists();
+            return file.exists();
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
