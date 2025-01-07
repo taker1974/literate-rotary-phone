@@ -76,23 +76,26 @@ public abstract class BaseQuestionService implements QuestionService {
     }
 
     @Override
-    public void addQuestion(Question question) throws QuestionRepositoryException {
+    public Question addQuestion(Question question) throws QuestionRepositoryException {
         questionRepository.addQuestion(question);
+        return question;
     }
 
     @Override
-    public void addQuestion(String questionText, String answerText) throws QuestionRepositoryException {
+    public Question addQuestion(String questionText, String answerText) throws QuestionRepositoryException {
         try {
             Question question = new Question(questionText, answerText);
             addQuestion(question);
+            return question;
         } catch (BadQuestionException e) {
             throw new QuestionRepositoryException(e.getMessage());
         }
     }
 
     @Override
-    public void removeQuestion(Question question) throws QuestionRepositoryException {
+    public Question removeQuestion(Question question) throws QuestionRepositoryException {
         questionRepository.removeQuestion(question);
+        return question;
     }
 
     @Override

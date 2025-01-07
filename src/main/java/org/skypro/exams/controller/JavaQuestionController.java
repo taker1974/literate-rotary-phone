@@ -9,6 +9,7 @@ import org.skypro.exams.model.question.BadQuestionException;
 import org.skypro.exams.model.question.Question;
 import org.skypro.exams.model.storage.QuestionRepositoryException;
 import org.skypro.exams.service.subjects.JavaQuestionService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,7 @@ import java.util.Collection;
  */
 @RestController
 @SuppressWarnings("unused") // ошибочное определение объекта кода, как неиспользуемого
+@RequestMapping("/java")
 public class JavaQuestionController extends BaseQuestionController {
 
     /**
@@ -49,17 +51,19 @@ public class JavaQuestionController extends BaseQuestionController {
      * @param questionText текст вопроса
      * @param answerText   текст ответа
      */
-    @PutMapping("/exam/java/add")
-    public void addQuestion(
+    @PutMapping("/add")
+    public ResponseEntity<Question> addQuestion(
             @RequestParam(name = "question") final String questionText,
             @RequestParam(name = "answer") final String answerText)
             throws QuestionRepositoryException {
-        questionService.addQuestion(questionText, answerText);
+        Question question = questionService.addQuestion(questionText, answerText);
+        return ResponseEntity.ok(question);
     }
 
-    @PutMapping("/exam/java/save")
-    public void saveQuestions() throws QuestionRepositoryException {
+    @PutMapping("/save")
+    public ResponseEntity<Boolean> saveQuestions() throws QuestionRepositoryException {
         questionService.saveQuestions(JavaQuestionService.JSON_QUESTIONS_PATH);
+        return ResponseEntity.ok(true);
     }
 
     /**
@@ -67,7 +71,7 @@ public class JavaQuestionController extends BaseQuestionController {
      *
      * @return все вопросы
      */
-    @RequestMapping("/exam/java")
+    @RequestMapping
     public Collection<Question> getQuestionsAll() {
         return questionService.getQuestionsAll();
     }
@@ -78,12 +82,12 @@ public class JavaQuestionController extends BaseQuestionController {
      * @param questionText текст вопроса
      * @param answerText   текст ответа
      */
-    @DeleteMapping("/exam/java/remove")
+    @DeleteMapping("/remove")
     @Override
-    public void removeQuestion(
+    public ResponseEntity<Question> removeQuestion(
             @RequestParam(name = "question") final String questionText,
             @RequestParam(name = "answer") final String answerText)
             throws QuestionRepositoryException, BadQuestionException {
-        super.removeQuestion(questionText, answerText);
+        return super.removeQuestion(questionText, answerText);
     }
 }

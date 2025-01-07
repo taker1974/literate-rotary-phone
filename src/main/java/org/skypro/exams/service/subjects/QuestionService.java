@@ -27,33 +27,38 @@ public interface QuestionService {
      * Добавляет вопрос в хранилище.
      *
      * @param question экземпляр класса {@link Question}
+     * @return экземпляр класса {@link Question}
+     * @throws QuestionRepositoryException если вопрос не может быть добавлен
      */
-    void addQuestion(Question question)
-        throws QuestionRepositoryException;
+    Question addQuestion(Question question)
+            throws QuestionRepositoryException;
 
     /**
      * Добавляет вопрос в хранилище.
      *
      * @param questionText текст вопроса
      * @param answerText   текст ответа
+     * @return экземпляр класса {@link Question}
+     * @throws QuestionRepositoryException если вопрос не может быть добавлен
      */
-    void addQuestion(String questionText, String answerText)
-        throws QuestionRepositoryException;
+    Question addQuestion(String questionText, String answerText)
+            throws QuestionRepositoryException;
 
     /**
      * Удаляет вопрос из хранилища.
      *
      * @param question экземпляр класса {@link Question}
-     *                                                              корректный вопрос не может быть удалён
+     * @return экземпляр класса {@link Question}
+     * @throws QuestionRepositoryException если вопрос не может быть добавлен
      */
-    void removeQuestion(Question question)
-        throws QuestionRepositoryException;
+    Question removeQuestion(Question question)
+            throws QuestionRepositoryException;
 
     /**
      * @return случайный вопрос {@link Question}
      */
     Question getRandomQuestion()
-        throws QuestionRepositoryException;
+            throws QuestionRepositoryException;
 
     /**
      * @return количество вопросов
@@ -65,10 +70,10 @@ public interface QuestionService {
      * Если pathInResources равен null, то загружает вопросы из файла по умолчанию.
      *
      * @param jsonPathInResources путь к файлу json в ресурсах или null
-     * @param textPathInResources  путь к текстовому в ресурсах или null
+     * @param textPathInResources путь к текстовому в ресурсах или null
      */
     void loadQuestions(@Nullable String jsonPathInResources, @Nullable String textPathInResources)
-        throws QuestionRepositoryException;
+            throws QuestionRepositoryException;
 
     /**
      * Сохраняет вопросы в файл.<br>
@@ -77,5 +82,5 @@ public interface QuestionService {
      * @param jsonPathInResources путь к файлу в ресурсах или null
      */
     void saveQuestions(@Nullable String jsonPathInResources)
-        throws QuestionRepositoryException;
+            throws QuestionRepositoryException;
 }

@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.skypro.exams.model.question.Question;
 import org.skypro.exams.service.subjects.ArchQuestionService;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,7 @@ import java.util.List;
  */
 @RestController
 @SuppressWarnings("unused") // ошибочное определение объекта кода, как неиспользуемого
+@RequestMapping("/arch")
 public class ArchQuestionController extends BaseQuestionController {
 
     /**
@@ -47,8 +49,8 @@ public class ArchQuestionController extends BaseQuestionController {
      * @param questionText текст вопроса
      * @param answerText   текст ответа
      */
-    @PutMapping("/exam/arch/add")
-    public void addQuestion(
+    @PutMapping("/add")
+    public ResponseEntity<Question> addQuestion(
             @RequestParam(name = "question") final String questionText,
             @RequestParam(name = "answer") final String answerText) {
         throw new MethodNotAllowedException(HttpMethod.PUT, List.of(HttpMethod.HEAD));
@@ -59,7 +61,7 @@ public class ArchQuestionController extends BaseQuestionController {
      *
      * @return все вопросы
      */
-    @RequestMapping("/exam/arch")
+    @RequestMapping
     public Collection<Question> getQuestionsAll() {
         throw new MethodNotAllowedException(HttpMethod.GET, List.of(HttpMethod.HEAD));
     }
@@ -70,9 +72,9 @@ public class ArchQuestionController extends BaseQuestionController {
      * @param questionText текст вопроса
      * @param answerText   текст ответа
      */
-    @DeleteMapping("/exam/arch/remove")
+    @DeleteMapping("/remove")
     @Override
-    public void removeQuestion(
+    public ResponseEntity<Question> removeQuestion(
             @RequestParam(name = "question") final String questionText,
             @RequestParam(name = "answer") final String answerText) {
         throw new MethodNotAllowedException(HttpMethod.DELETE, List.of(HttpMethod.HEAD));

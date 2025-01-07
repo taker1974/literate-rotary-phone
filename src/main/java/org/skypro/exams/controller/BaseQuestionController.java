@@ -9,6 +9,7 @@ import org.skypro.exams.model.question.BadQuestionException;
 import org.skypro.exams.model.question.Question;
 import org.skypro.exams.model.storage.QuestionRepositoryException;
 import org.skypro.exams.service.subjects.QuestionService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -32,7 +33,7 @@ public abstract class BaseQuestionController {
         this.questionService = questionService;
     }
 
-    protected void removeQuestion(
+    protected ResponseEntity<Question> removeQuestion(
             @RequestParam(name = "question") final String questionText,
             @RequestParam(name = "answer") final String answerText)
             throws QuestionRepositoryException, BadQuestionException {
@@ -42,8 +43,9 @@ public abstract class BaseQuestionController {
         for(var question : questionService.getQuestionsAll()){
             if (question.equals(questionToRemove)) {
                 questionService.removeQuestion(question);
-                return;
+                return ResponseEntity.ok(question);
             }
         }
+        return ResponseEntity.notFound().build();
     }
 }
